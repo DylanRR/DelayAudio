@@ -85,6 +85,9 @@ class audioController:
     self.chunk = chunk
     self.EXIT = False
     self.LOCK = threading.Lock()
+    self.mute_spk_1 = True
+    self.mute_spk_2 = True
+    self.MUTE_LOCK = threading.Lock()
 
     # Buffers for delayed audio
     if self.delay_duration > 0:
@@ -149,8 +152,19 @@ class audioController:
       delayed_data2 = data2
 
     # Write delayed data to output streams
-    self.spk1.play(delayed_data2)
-    self.spk2.play(delayed_data1)
+    with self.MUTE_LOCK:
+      if not self.mute_spk_1:
+        self.spk1.play(delayed_data1)
+      if not self.mute_spk_2:
+        self.spk2.play(delayed_data2)
+
+  def set_spk1_Mute(self, mute):
+    with self.MUTE_LOCK:
+      self.mute_spk_1 = mute
+
+  def set_spk2_Mute(self, mute):
+    with self.MUTE_LOCK:
+      self.mute_spk_2 = mute
 
   def run(self):
     try:
@@ -182,7 +196,7 @@ if __name__ == "__main__":
     audioThread = threading.Thread(target=audio_test.run)
     audioThread.start()
 
-    sleep(10)
+    sleep(5)
     with audio_test.LOCK:
         audio_test.EXIT = True
     audioThread.join()
