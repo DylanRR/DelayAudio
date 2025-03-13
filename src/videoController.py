@@ -2,6 +2,7 @@ import cv2
 import time
 from screeninfo import get_monitors
 import threading
+from collections import deque
 
 class webcam:
   def __init__(self, device_index):
@@ -69,7 +70,7 @@ class monitor:
     cv2.waitKey(1)  # Allow OpenCV to process window events
 
 class videoController:
-  def __init__(self, webcam_1, webcam_2, monitor_1, monitor_2):
+  def __init__(self, webcam_1, webcam_2, monitor_1, monitor_2, video_delay=0):
     self.webcam_1_index = webcam_1
     self.webcam_2_index = webcam_2
     self.monitor_1_index = monitor_1
@@ -82,6 +83,15 @@ class videoController:
 
     self.EXIT = False
     self.LOCK = threading.Lock()
+
+    self.video_delay = video_delay
+    if self.video_delay > 0:
+      self.buffer_1 = deque(maxlen=int(self.video_delay * 30))  # Assuming 30 FPS
+      self.buffer_2 = deque(maxlen=int(self.video_delay * 30))  # Assuming 30 FPS
+    else:
+      self.buffer_1 = None
+      self.buffer_2 = None
+
 
   def init(self):
     self.webcam_1 = webcam(self.webcam_1_index)
@@ -116,15 +126,34 @@ class videoController:
     frame1 = self.webcam_1.get_frame()
     frame2 = self.webcam_2.get_frame()
 
-    if frame1 is not None:
-      self.monitor_1.show_frame(frame1)
-    else:
-      print("No frame captured from webcam 1.")
+    if self.video_delay > 0:
+      self.buffer_1.append(frame1)
+      self.buffer_2.append(frame2)
 
-    if frame2 is not None:
-      self.monitor_2.show_frame(frame2)
+      if len(self.buffer_1) == self.buffer_1.maxlen:
+        delayed_frame1 = self.buffer_1.popleft()
+        if delayed_frame1 is not None:
+          self.monitor_1.show_frame(delayed_frame1)
+        else:
+          print("No frame captured from webcam 1.")
+
+      if len(self.buffer_2) == self.buffer_2.maxlen:
+        delayed_frame2 = self.buffer_2.popleft()
+        if delayed_frame2 is not None:
+          self.monitor_2.show_frame(delayed_frame2)
+        else:
+          print("No frame captured from webcam 2.")
     else:
-      print("No frame captured from webcam 2.")
+      if frame1 is not None:
+        self.monitor_1.show_frame(frame1)
+      else:
+        print("No frame captured from webcam 1.")
+
+      if frame2 is not None:
+        self.monitor_2.show_frame(frame2)
+      else:
+        print("No frame captured from webcam 2.")
+
 
   def run(self):
     try:
@@ -147,8 +176,11 @@ class videoController:
       self.__close()
 
 
+
+# Example usage
+"""
 if __name__ == "__main__":
-  video_controller = videoController(0, 2, 0, 1)
+  video_controller = videoController(0, 2, 0, 1, video_delay=0)
 
   video_controller_thread = threading.Thread(target=video_controller.run)
   video_controller_thread.start()
@@ -157,5 +189,5 @@ if __name__ == "__main__":
   with video_controller.LOCK:
     video_controller.EXIT = True
   video_controller_thread.join()
-
+# """
 

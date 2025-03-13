@@ -145,8 +145,8 @@ class audioController:
       self.__close()
 
 
-
-
+# Example usage
+"""
 if __name__ == "__main__":
   audio_test = audioController(input_1=0, output_1=9, input_2=1, output_2=10)
   audioThread = threading.Thread(target=audio_test.run)
@@ -156,3 +156,4 @@ if __name__ == "__main__":
   with audio_test.LOCK:
       audio_test.exit = True
   audioThread.join()
+"""
