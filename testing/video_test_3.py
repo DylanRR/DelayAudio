@@ -2,6 +2,7 @@ import cv2
 import time
 from screeninfo import get_monitors
 
+
 def main():
     # Open both webcams
     cap1 = cv2.VideoCapture(0)  # Webcam 1
