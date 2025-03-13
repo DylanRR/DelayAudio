@@ -1,144 +1,89 @@
-import static
-import config
-
-#Audio
-import pyaudio
-from collections import deque
-import sounddevice     #Must import to supress ALSA config errors for some weird reason
-import wave
-
-#Video
-import cv2
+from audioController import audioController
+from videoController import videoController
+from phidgetController import phidgetController
+import configuration_loader
+import threading
 import time
-from screeninfo import get_monitors
+import os
 
-#Phidgets
-from Phidget22.Phidget import *
-from Phidget22.Devices.DigitalInput import *
-
-audio = None
-input_stream_1 = None
-input_stream_2 = None
-output_stream_1 = None
-output_stream_2 = None
-buffer_1 = None
-buffer_2 = None
-FORMAT = None
-
-def setup_audio():
-  global audio, input_stream_1, input_stream_2, output_stream_1, output_stream_2, buffer_1, buffer_2, FORMAT
-  audio = pyaudio.PyAudio()
-  input_stream_1 = audio.open(
-    format=FORMAT,
-    channels=static.CHANNELS,
-    rate=static.SAMPLE_RATE,
-    input=True,
-    input_device_index=static.MIC_1_INDEX,
-    frames_per_buffer=static.CHUNK
-)
-
-
-
-
-
-webcam_1 = None
-webcam_2 = None
-
-def setup_webcams():
-  global webcam_1, webcam_2
-
-  # Open both webcams
-  webcam_1 = cv2.VideoCapture(static.WEBCAM_1_INDEX)  # Webcam 1
-  webcam_2 = cv2.VideoCapture(static.WEBCAM_2_INDEX)  # Webcam 2
-
-  if not webcam_1.isOpened():
-    print("Error: Could not open webcam 1.")
-    return False
-  if not webcam_2.isOpened():
-    print("Error: Could not open webcam 2.")
-    return False
-
-  return True
-
-
-monitor_1 = None
-monitor_2 = None
-monitor_1_width = None
-monitor_1_height = None
-monitor_2_width = None
-monitor_2_height = None
-
-def setup_monitors():
-  global monitor_1, monitor_2, monitor_1_width, monitor_1_height, monitor_2_width, monitor_2_height
-
-  monitors = get_monitors()
-
-  if len(monitors) < 2:
-    print("Error: Less than two monitors detected.")
-    return
-
-  # Assign monitors
-  monitor_1 = monitors[0]  # Primary monitor
-  monitor_2 = monitors[1]  # Secondary monitor
-
-  # Monitor A properties
-  monitor_1_width = monitor_1.width
-  monitor_1_height = monitor_1.height
-  monitor_1_x_position = monitor_1.x
-  monitor_1_y_position = monitor_1.y
-
-  # Monitor B properties
-  monitor_2_width = monitor_2.width
-  monitor_2_height = monitor_2.height
-  monitor_2_x_position = monitor_2.x
-  monitor_2_y_position = monitor_2.y
-
-  # Create named windows
-  cv2.namedWindow('Webcam 1', cv2.WINDOW_NORMAL)
-  cv2.namedWindow('Webcam 2', cv2.WINDOW_NORMAL)
-
-  # Move windows to respective monitors
-  cv2.moveWindow('Webcam 1', monitor_1_x_position, monitor_1_y_position)
-  cv2.moveWindow('Webcam 2', monitor_2_x_position, monitor_2_y_position)
-
-  # Set windows to fullscreen
-  time.sleep(1)  # Small delay to ensure window properties are applied
-  cv2.setWindowProperty('Webcam 1', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-  cv2.setWindowProperty('Webcam 2', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-
-
-def main():
-    setup_webcams()
-    setup_monitors()
-
-    while True:
-        # Capture frames from both webcams
-        ret1, frame1 = webcam_1.read()
-        ret2, frame2 = webcam_2.read()
-
-        if not ret1:
-            print("Error: Could not read frame from webcam 1.")
-            break
-        if not ret2:
-            print("Error: Could not read frame from webcam 2.")
-            break
-
-        # Resize frames to fit respective screens
-        frame1 = cv2.resize(frame1, (monitor_1_width, monitor_1_height))
-        frame2 = cv2.resize(frame2, (monitor_2_width, monitor_2_height))
-
-        # Display frames
-        cv2.imshow('Webcam 1', frame1)
-        cv2.imshow('Webcam 2', frame2)
-
-        # Press 'q' on the keyboard to exit the loop
-        if cv2.waitKey(1) & 0xFF == 27:
-            break
-
-    # Release the captures and close the windows
-    webcam_1.release()
-    webcam_2.release()
-    cv2.destroyAllWindows()
+try:
+  config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+  CL = configuration_loader.ConfigurationLoader(config_path)
+  WEBCAM_INDEX_1 = CL.get_webcam_index('webcam_1')
+  WEBCAM_INDEX_2 = CL.get_webcam_index('webcam_2')
+  MONITOR_INDEX_1 = CL.get_monitor_index('monitor_1')
+  MONITOR_INDEX_2 = CL.get_monitor_index('monitor_2')
+  MIC_INDEX_1 = CL.get_microphone_index('mic_1')
+  MIC_INDEX_2 = CL.get_microphone_index('mic_2')
+  SPEAKER_INDEX_1 = CL.get_speaker_index('speaker_1')
+  SPEAKER_INDEX_2 = CL.get_speaker_index('speaker_2')
+  PHIDGET_1_SERIAL_NUMBER = CL.get_phidget_serial('phidget_1')
+  PHIDGET_2_SERIAL_NUMBER = CL.get_phidget_serial('phidget_2')
+  PHIDGET_1_CHANNELS = CL.get_phidget_channels('phidget_1')
+  PHIDGET_2_CHANNELS = CL.get_phidget_channels('phidget_2')
+  VIDEO_DELAY = CL.get_advanced_video_options('video_delay')
+  AUDIO_DELAY = CL.get_advanced_audio_options('audio_delay')
+  SAMPLE_RATE = CL.get_advanced_audio_options('sample_rate')
+  AUDIO_CHANNELS = CL.get_advanced_audio_options('audio_channels')
+  CHUNK_SIZE = CL.get_advanced_audio_options('chunk_size')
+except Exception as e:
+  print(f"Error loading configuration Data: {e}")
+  exit(1)
 
 if __name__ == "__main__":
-    main()
+  video_controller = videoController(WEBCAM_INDEX_1, WEBCAM_INDEX_2, MONITOR_INDEX_1, MONITOR_INDEX_2, video_delay=VIDEO_DELAY)
+  video_controller_thread = threading.Thread(target=video_controller.run)
+  video_controller_thread.start()
+  print("Video Controller Started")
+
+  audio_controller = audioController(input_1=MIC_INDEX_1, output_1=SPEAKER_INDEX_1, input_2=MIC_INDEX_1, output_2=SPEAKER_INDEX_2, delay_duration=AUDIO_DELAY, channels=AUDIO_CHANNELS, rate=SAMPLE_RATE, chunk=CHUNK_SIZE)
+  audioThread = threading.Thread(target=audio_controller.run)
+  audioThread.start()
+  print ("Audio Controller Started")
+
+  phidget1 = phidgetController(serial_number=PHIDGET_1_SERIAL_NUMBER, channels=PHIDGET_1_CHANNELS)
+  phidget2 = phidgetController(serial_number=PHIDGET_2_SERIAL_NUMBER, channels=PHIDGET_2_CHANNELS)
+
+  if not phidget1.init():
+    print("Failed to initialize Phidget 1.")
+    exit(1)
+  if not phidget2.init():
+    print("Failed to initialize Phidget 2.")
+    exit(1)
+
+
+  tempSpk1Mute = True
+  tempSpk2Mute = True
+
+  try:
+    while True:
+      if phidget1.is_button_pressed(0):
+        if tempSpk1Mute:
+          audio_controller.set_spk1_Mute(False)
+          tempSpk1Mute = False
+      else:
+        if not tempSpk1Mute:
+          audio_controller.set_spk1_Mute(True)
+          tempSpk1Mute = True
+
+      if phidget2.is_button_pressed(0):
+        if tempSpk2Mute:
+          audio_controller.set_spk2_Mute(False)
+          tempSpk2Mute = False
+      else:
+        if not tempSpk2Mute:
+          audio_controller.set_spk2_Mute(True)
+          tempSpk2Mute = True
+      time.sleep(0.1)
+  except Exception as e:
+    print(f"Exception: {e}")
+  except KeyboardInterrupt:
+    print("KeyboardInterrupt detected. Exiting...")
+  finally:
+    video_controller.exit()
+    video_controller_thread.join()
+    audio_controller.exit()
+    audioThread.join()
+    phidget1.close()
+    phidget2.close()
+

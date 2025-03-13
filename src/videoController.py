@@ -122,6 +122,10 @@ class videoController:
     self.monitor_1.close()
     self.monitor_2.close()
 
+  def exit(self):
+    with self.LOCK:
+      self.EXIT = True
+
   def __show_frames(self):
     frame1 = self.webcam_1.get_frame()
     frame2 = self.webcam_2.get_frame()

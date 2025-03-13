@@ -73,7 +73,7 @@ class speaker:
     self.audio.terminate()
 
 class audioController:
-  def __init__(self, input_1, output_1, input_2, output_2, delay_duration=0, format=pyaudio.paInt16, channels=1, rate=48000, chunk=2048):
+  def __init__(self, input_1, output_1, input_2, output_2, delay_duration=0, channels=1, rate=48000, chunk=2048, format=pyaudio.paInt16):
     self.input_1 = input_1
     self.output_1 = output_1
     self.input_2 = input_2
@@ -127,6 +127,10 @@ class audioController:
     if self.spk2:
       self.spk2.close()
 
+  def exit(self):
+    with self.LOCK:
+      self.EXIT = True
+
   def __updateStreams(self):
     # Read data from input streams
     data1 = self.mic1.getStream()
@@ -179,7 +183,7 @@ class audioController:
         with self.LOCK:
           if self.EXIT:
             break
-          self.__updateStreams()
+        self.__updateStreams()
     except IOError as e:
       print(f"Error: {e}")
 
