@@ -1,0 +1,7 @@
+Bus 003 Device 029: ID 06c2:0045 Phidgets Inc. (formerly GLAB) PhidgetInterface Kit 8-8-8
+  iProduct                2 PhidgetInterfaceKit 8/8/8
+  iSerial                 3 678328
+--
+Bus 003 Device 031: ID 06c2:0045 Phidgets Inc. (formerly GLAB) PhidgetInterface Kit 8-8-8
+  iProduct                2 PhidgetInterfaceKit 8/8/8
+  iSerial                 3 678505
