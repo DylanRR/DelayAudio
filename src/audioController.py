@@ -123,9 +123,13 @@ class audioController:
 
   def run(self):
     try:
+      if not self.init():
+        print("Failed to initialize audio controller.")
+        return
+
       with self.LOCK:
         self.EXIT = False
-        
+
       while True:
         with self.LOCK:
           if self.EXIT:
@@ -145,7 +149,6 @@ class audioController:
 
 if __name__ == "__main__":
   audio_test = audioController(input_1=0, output_1=9, input_2=1, output_2=10)
-  audio_test.init()
   audioThread = threading.Thread(target=audio_test.run)
   audioThread.start()
 
