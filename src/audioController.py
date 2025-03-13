@@ -69,7 +69,7 @@ class audioController:
     self.channels = channels
     self.rate = rate
     self.chunk = chunk
-    self.exit = False
+    self.EXIT = False
     self.LOCK = threading.Lock()
 
     # Buffers for delayed audio
@@ -91,54 +91,57 @@ class audioController:
     self.spk2 = speaker(self.output_2, self.channels, self.rate, self.chunk, self.format)
     self.spk2.init()
 
-  def cleanup(self):
+  def __close(self):
     self.mic1.close()
     self.mic2.close()
     self.spk1.close()
     self.spk2.close()
 
+  def __updateStreams(self):
+    # Read data from input streams
+    data1 = self.mic1.getStream()
+    data2 = self.mic2.getStream()
+
+    # Add data to buffers
+    self.buffer_1.append(data1)
+    self.buffer_2.append(data2)
+
+    # Get delayed data from buffers
+    if len(self.buffer_1) == self.buffer_1.maxlen:
+        delayed_data1 = self.buffer_1.popleft()
+    else:
+        delayed_data1 = b'\x00' * self.chunk * 2
+
+    if len(self.buffer_2) == self.buffer_2.maxlen:
+        delayed_data2 = self.buffer_2.popleft()
+    else:
+        delayed_data2 = b'\x00' * self.chunk * 2
+
+    # Write delayed data to output streams
+    self.spk1.play(delayed_data2)
+    self.spk2.play(delayed_data1)
+
   def run(self):
     try:
       with self.LOCK:
-          self.exit = False
-
+        self.EXIT = False
+        
       while True:
-        try:
-            with self.LOCK:
-              if self.exit:
-                break
-
-            # Read data from input streams
-            data1 = self.mic1.getStream()
-            data2 = self.mic2.getStream()
-
-            # Add data to buffers
-            self.buffer_1.append(data1)
-            self.buffer_2.append(data2)
-
-            # Get delayed data from buffers
-            if len(self.buffer_1) == self.buffer_1.maxlen:
-                delayed_data1 = self.buffer_1.popleft()
-            else:
-                delayed_data1 = b'\x00' * self.chunk * 2
-
-            if len(self.buffer_2) == self.buffer_2.maxlen:
-                delayed_data2 = self.buffer_2.popleft()
-            else:
-                delayed_data2 = b'\x00' * self.chunk * 2
-
-            # Write delayed data to output streams
-            self.spk1.play(delayed_data2)
-            self.spk2.play(delayed_data1)
-
-        except IOError as e:
-            print(f"Error: {e}")
+        with self.LOCK:
+          if self.EXIT:
+            break
+          self.__updateStreams()
+    except IOError as e:
+      print(f"Error: {e}")
 
     except KeyboardInterrupt:
-        pass
+      pass
 
     finally:
-        self.cleanup()
+      self.__close()
+
+
+
 
 if __name__ == "__main__":
   audio_test = audioController(input_1=0, output_1=9, input_2=1, output_2=10)
