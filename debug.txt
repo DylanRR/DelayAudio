@@ -1,0 +1,14 @@
+Error playing test tone: output_device_index must be integer (or None)
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/tkinter/__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+  File "/home/csc-admin/Desktop/DelayAudio/devTooling/ui.py", line 150, in <lambda>
+    speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(speaker1_entry.get()))
+                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/csc-admin/Desktop/DelayAudio/devTooling/scanAudio.py", line 40, in play_test_tone
+    stream.stop_stream()
+    ^^^^^^
+UnboundLocalError: cannot access local variable 'stream' where it is not associated with a value
+
