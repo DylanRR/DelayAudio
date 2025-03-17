@@ -5,6 +5,7 @@ import configuration_loader
 import scanAudio
 import scanWebcams
 import scanMonitors
+import scanSampleRates
 import os
 
 class ConfigUI(tk.Tk):
@@ -219,22 +220,50 @@ class ConfigUI(tk.Tk):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text='Advanced Audio')
         # Add widgets for advanced audio properties configuration
-        ttk.Label(frame, text="Sample Rate:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Sample Rate (Default 48000):").grid(row=0, column=0, padx=1, pady=5, sticky='e')
         self.sample_rate_entry = ttk.Entry(frame)
-        self.sample_rate_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.sample_rate_entry.grid(row=0, column=1, padx=5, pady=5, sticky='w')
         self.sample_rate_entry.insert(0, self.CL.get_advanced_audio_options('sample_rate'))
-        ttk.Label(frame, text="Audio Channels:").grid(row=1, column=0, padx=10, pady=5)
+
+        # Add buttons below the existing widgets
+        sample_rate_scan_btn = ttk.Button(frame, text="Scan Sample Rates", command=self.scan_sample_rate)
+        sample_rate_scan_btn.grid(row=0, column=2, padx=1, pady=10, sticky='e')
+
+        ttk.Label(frame, text="Audio Channels:").grid(row=1, column=0, padx=1, pady=5, sticky='e')
         audio_channels_entry = ttk.Entry(frame)
-        audio_channels_entry.grid(row=1, column=1, padx=10, pady=5)
+        audio_channels_entry.grid(row=1, column=1, padx=5, pady=5, sticky='w')
         audio_channels_entry.insert(0, self.CL.get_advanced_audio_options('audio_channels'))
-        ttk.Label(frame, text="Chunk Size:").grid(row=2, column=0, padx=10, pady=5)
+        audio_channels_entry.config(state='readonly')
+        ttk.Label(frame, text="Chunk Size:").grid(row=2, column=0, padx=1, pady=5, sticky='e')
         chunk_size_entry = ttk.Entry(frame)
-        chunk_size_entry.grid(row=2, column=1, padx=10, pady=5)
+        chunk_size_entry.grid(row=2, column=1, padx=5, pady=5, sticky='w')
         chunk_size_entry.insert(0, self.CL.get_advanced_audio_options('chunk_size'))
-        ttk.Label(frame, text="Audio Delay:").grid(row=3, column=0, padx=10, pady=5)
+        chunk_size_entry.config(state='readonly')
+        ttk.Label(frame, text="Audio Delay:").grid(row=3, column=0, padx=1, pady=5, sticky='e')
         audio_delay_entry = ttk.Entry(frame)
-        audio_delay_entry.grid(row=3, column=1, padx=10, pady=5)
+        audio_delay_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
         audio_delay_entry.insert(0, self.CL.get_advanced_audio_options('audio_delay'))
+        audio_delay_entry.config(state='readonly')
+
+        # Add a scrollable listbox to display the audio devices
+        self.sample_rates_listbox = tk.Listbox(frame, height=10, width=50)
+        self.sample_rates_listbox.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky='w')
+
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=self.sample_rates_listbox.yview)
+        scrollbar.grid(row=4, column=2, sticky='ns')
+        self.sample_rates_listbox.config(yscrollcommand=scrollbar.set)
+
+    def scan_sample_rate(self):
+        # Clear previous output
+        self.sample_rates_listbox.delete(0, tk.END)
+
+        # Fetch and display the list of supported sample rates
+        devices = scanSampleRates.list_supported_sample_rates()
+        for device in devices:
+            self.sample_rates_listbox.insert(tk.END, f"Device {device['device_number']}: {device['device_info']['name']}")
+            for rate in device['supported_sample_rates']:
+                self.sample_rates_listbox.insert(tk.END, f"  Supported sample rate: {rate}")
+      
 
     def create_advanced_video_tab(self, notebook):
         frame = ttk.Frame(notebook)
