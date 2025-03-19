@@ -19,6 +19,58 @@ class ConfigurationLoader:
     except Exception as e:
       print(f"Error loading configuration file: {e}")
       return None
+
+  def get_phidget_serial(self, phidget_name):
+    if self.config:
+      return self.config.get('phidgets', {}).get(phidget_name, {}).get('serial_number', None)
+    return None
+     
+  def get_phidget_channels(self, phidget_name):
+    if self.config:
+      return self.config.get('phidgets', {}).get(phidget_name, {}).get('active_channels', [])
+    return []
+
+  def get_microphone_index(self, mic_name):
+    if self.config:
+      return self.config.get('microphones', {}).get(mic_name, {}).get('index', None)
+    return None
+  
+  def get_speaker_index(self, spk_name):
+    if self.config:
+      return self.config.get('speakers', {}).get(spk_name, {}).get('index', None)
+    return None
+  
+  def get_webcam_index(self, cam_name):
+    if self.config:
+      return self.config.get('webcams', {}).get(cam_name, {}).get('index', None)
+    return None
+
+  def get_monitor_index(self, mon_name):
+    if self.config:
+      return self.config.get('monitors', {}).get(mon_name, {}).get('index', None)
+    return None
+  
+  def get_advanced_audio_options(self, advanced_properties):
+    if self.config:
+      if isinstance(advanced_properties, list):
+        return {prop: self.config.get('advanced_audio_properties', {}).get(prop, None) for prop in advanced_properties}
+      else:
+        return self.config.get('advanced_audio_properties', {}).get(advanced_properties, None)
+    if isinstance(advanced_properties, list):
+      return {prop: None for prop in advanced_properties}
+    return None
+  
+  def get_advanced_video_options(self, advanced_properties):
+    if self.config:
+      if isinstance(advanced_properties, list):
+        return {prop: self.config.get('advanced_video_properties', {}).get(prop, None) for prop in advanced_properties}
+      else:
+        return self.config.get('advanced_video_properties', {}).get(advanced_properties, None)
+    if isinstance(advanced_properties, list):
+      return {prop: None for prop in advanced_properties}
+    return None
+  
+  
   
   
   def set_config_value(self, section, key, value):

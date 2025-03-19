@@ -1,7 +1,7 @@
 from audioController import audioController
 from videoController import videoController
 from phidgetController import phidgetController
-import configuration_loader
+import configuration_loader_v2 as configuration_loader
 import threading
 import time
 import os
@@ -9,23 +9,23 @@ import os
 try:
   config_path = os.path.join(os.path.dirname(__file__), 'config.json')
   CL = configuration_loader.ConfigurationLoader(config_path)
-  WEBCAM_INDEX_1 = CL.get_webcam_index('webcam_1')
-  WEBCAM_INDEX_2 = CL.get_webcam_index('webcam_2')
-  MONITOR_INDEX_1 = CL.get_monitor_index('monitor_1')
-  MONITOR_INDEX_2 = CL.get_monitor_index('monitor_2')
-  MIC_INDEX_1 = CL.get_microphone_index('microphone_1')
-  MIC_INDEX_2 = CL.get_microphone_index('microphone_2')
-  SPEAKER_INDEX_1 = CL.get_speaker_index('speaker_1')
-  SPEAKER_INDEX_2 = CL.get_speaker_index('speaker_2')
-  PHIDGET_1_SERIAL_NUMBER = CL.get_phidget_serial('phidget_1')
-  PHIDGET_2_SERIAL_NUMBER = CL.get_phidget_serial('phidget_2')
-  PHIDGET_1_CHANNELS = CL.get_phidget_channels('phidget_1')
-  PHIDGET_2_CHANNELS = CL.get_phidget_channels('phidget_2')
-  VIDEO_DELAY = CL.get_advanced_video_options('video_delay')
-  AUDIO_DELAY = CL.get_advanced_audio_options('audio_delay')
-  SAMPLE_RATE = CL.get_advanced_audio_options('sample_rate')
-  AUDIO_CHANNELS = CL.get_advanced_audio_options('audio_channels')
-  CHUNK_SIZE = CL.get_advanced_audio_options('chunk_size')
+  PHIDGET_1_SERIAL_NUMBER = CL.get_config_value('phidgets', ['phidget_1', 'serial_number'])
+  PHIDGET_2_SERIAL_NUMBER = CL.get_config_value('phidgets', ['phidget_2', 'serial_number'])
+  PHIDGET_1_CHANNELS = CL.get_config_value('phidgets', ['phidget_1', 'active_channels'])
+  PHIDGET_2_CHANNELS = CL.get_config_value('phidgets', ['phidget_2', 'active_channels'])
+  MIC_INDEX_1 = CL.get_config_value('microphones', ['microphone_1', 'index'])
+  MIC_INDEX_2 = CL.get_config_value('microphones', ['microphone_2', 'index'])
+  SPEAKER_INDEX_1 = CL.get_config_value('speakers', ['speaker_1', 'index'])
+  SPEAKER_INDEX_2 = CL.get_config_value('speakers', ['speaker_2', 'index'])
+  WEBCAM_INDEX_1 = CL.get_config_value('webcams', ['webcam_1', 'index'])
+  WEBCAM_INDEX_2 = CL.get_config_value('webcams', ['webcam_2', 'index'])
+  MONITOR_INDEX_1 = CL.get_config_value('monitors', ['monitor_1', 'index'])
+  MONITOR_INDEX_2 = CL.get_config_value('monitors', ['monitor_2', 'index'])
+  AUDIO_DELAY = CL.get_config_value('advanced_audio_properties', ['audio_delay'])
+  SAMPLE_RATE = CL.get_config_value('advanced_audio_properties', ['sample_rate'])
+  AUDIO_CHANNELS = CL.get_config_value('advanced_audio_properties', ['channels'])
+  CHUNK_SIZE = CL.get_config_value('advanced_audio_properties', ['chunk_size'])
+  VIDEO_DELAY = CL.get_config_value('advanced_video_properties', ['video_delay'])
 except Exception as e:
   print(f"Error loading configuration Data: {e}")
   exit(1)
