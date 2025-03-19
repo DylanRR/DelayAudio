@@ -13,8 +13,8 @@ class ConfigUI(tk.Tk):
         super().__init__()
         self.title("Configuration UI")
         self.geometry("600x400")
-        config_path = os.path.join(os.path.dirname(__file__), 'config.json')
-        self.CL = configuration_loader.ConfigurationLoader(config_path)
+        self.config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+        self.CL = configuration_loader.ConfigurationLoader(self.config_path)
         self.create_widgets()
 
     def create_widgets(self):
@@ -38,14 +38,14 @@ class ConfigUI(tk.Tk):
         #Phidget 1 Serial #
         ttk.Label(frame, text="Phidget 1").grid(row=0, column=0, padx=10, pady=5, sticky='w')
         ttk.Label(frame, text="Serial Number:").grid(row=1, column=0, padx=10, pady=5, sticky='e')
-        phidget1_serial_entry = ttk.Entry(frame)
-        phidget1_serial_entry.grid(row=1, column=1, padx=10, pady=5)
-        phidget1_serial_entry.insert(0, self.CL.get_phidget_serial('phidget_1'))
+        self.phidget1_serial_entry = ttk.Entry(frame)
+        self.phidget1_serial_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.phidget1_serial_entry.insert(0, self.CL.get_phidget_serial('phidget_1'))
         #Phidget 1 Channels #s
         ttk.Label(frame, text="Active Digital Channels:").grid(row=2, column=0, padx=10, pady=5, sticky='e')
-        phidget1_channels_entry = ttk.Entry(frame)
-        phidget1_channels_entry.grid(row=2, column=1, padx=10, pady=5)
-        phidget1_channels_entry.insert(0, ','.join(map(str, self.CL.get_phidget_channels('phidget_1'))))
+        self.phidget1_channels_entry = ttk.Entry(frame)
+        self.phidget1_channels_entry.grid(row=2, column=1, padx=10, pady=5)
+        self.phidget1_channels_entry.insert(0, ','.join(map(str, self.CL.get_phidget_channels('phidget_1'))))
         ttk.Label(frame, text="(eg. 1,3,4)").grid(row=2, column=2, padx=10, pady=5, sticky='w')
         
         ttk.Label(frame, text="").grid(row=3, column=2, padx=10, pady=5, sticky='w')
@@ -53,14 +53,14 @@ class ConfigUI(tk.Tk):
         #Phidget 2 Serial #
         ttk.Label(frame, text="Phidget 2").grid(row=4, column=0, padx=10, pady=5, sticky='w')
         ttk.Label(frame, text="Serial Number:").grid(row=5, column=0, padx=10, pady=5, sticky='e')
-        phidget2_serial_entry = ttk.Entry(frame)
-        phidget2_serial_entry.grid(row=5, column=1, padx=10, pady=5)
-        phidget2_serial_entry.insert(0, self.CL.get_phidget_serial('phidget_2'))
+        self.phidget2_serial_entry = ttk.Entry(frame)
+        self.phidget2_serial_entry.grid(row=5, column=1, padx=10, pady=5)
+        self.phidget2_serial_entry.insert(0, self.CL.get_phidget_serial('phidget_2'))
         #Phidget 2 Channels #s
         ttk.Label(frame, text="Active Digital Channels:").grid(row=6, column=0, padx=10, pady=5, sticky='e')
-        phidget2_channels_entry = ttk.Entry(frame)
-        phidget2_channels_entry.grid(row=6, column=1, padx=10, pady=5)
-        phidget2_channels_entry.insert(0, ','.join(map(str, self.CL.get_phidget_channels('phidget_2'))))
+        self.phidget2_channels_entry = ttk.Entry(frame)
+        self.phidget2_channels_entry.grid(row=6, column=1, padx=10, pady=5)
+        self.phidget2_channels_entry.insert(0, ','.join(map(str, self.CL.get_phidget_channels('phidget_2'))))
         ttk.Label(frame, text="(eg. 1,3,4)").grid(row=6, column=2, padx=10, pady=5, sticky='w')
         
         # Add buttons below the existing widgets
@@ -110,13 +110,13 @@ class ConfigUI(tk.Tk):
         notebook.add(frame, text='Microphones')
         # Add widgets for microphones configuration
         ttk.Label(frame, text="Microphone 1 Index:").grid(row=0, column=0, padx=10, pady=5)
-        mic1_entry = ttk.Entry(frame)
-        mic1_entry.grid(row=0, column=1, padx=10, pady=5)
-        mic1_entry.insert(0, self.CL.get_microphone_index('microphone_1'))
+        self.mic1_entry = ttk.Entry(frame)
+        self.mic1_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.mic1_entry.insert(0, self.CL.get_microphone_index('microphone_1'))
         ttk.Label(frame, text="Microphone 2 Index:").grid(row=1, column=0, padx=10, pady=5)
-        mic2_entry = ttk.Entry(frame)
-        mic2_entry.grid(row=1, column=1, padx=10, pady=5)
-        mic2_entry.insert(0, self.CL.get_microphone_index('microphone_2'))
+        self.mic2_entry = ttk.Entry(frame)
+        self.mic2_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.mic2_entry.insert(0, self.CL.get_microphone_index('microphone_2'))
 
         # Add buttons below the existing widgets
         list_button = ttk.Button(frame, text="Scan Audio", command=self.scan_audio_devices)
@@ -144,18 +144,17 @@ class ConfigUI(tk.Tk):
         notebook.add(frame, text='Speakers')
         # Add widgets for speakers configuration
         ttk.Label(frame, text="Speaker 1 Index:").grid(row=0, column=0, padx=10, pady=5)
-        speaker1_entry = ttk.Entry(frame)
-        speaker1_entry.grid(row=0, column=1, padx=10, pady=5)
-        speaker1_entry.insert(0, self.CL.get_speaker_index('speaker_1'))
-        print (speaker1_entry.get())
-        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(speaker1_entry.get()), int(self.sample_rate_entry.get())))
+        self.speaker1_entry = ttk.Entry(frame)
+        self.speaker1_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.speaker1_entry.insert(0, self.CL.get_speaker_index('speaker_1'))
+        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker1_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=0, column=2, padx=10, pady=10, sticky='e')
 
         ttk.Label(frame, text="Speaker 2 Index:").grid(row=1, column=0, padx=10, pady=5)
-        speaker2_entry = ttk.Entry(frame)
-        speaker2_entry.grid(row=1, column=1, padx=10, pady=5)
-        speaker2_entry.insert(0, self.CL.get_speaker_index('speaker_2'))
-        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(speaker2_entry.get()), int(self.sample_rate_entry.get())))
+        self.speaker2_entry = ttk.Entry(frame)
+        self.speaker2_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.speaker2_entry.insert(0, self.CL.get_speaker_index('speaker_2'))
+        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker2_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=1, column=2, padx=10, pady=10, sticky='e')
 
         # Add buttons below the existing widgets
@@ -187,13 +186,13 @@ class ConfigUI(tk.Tk):
         notebook.add(frame, text='Webcams')
         # Add widgets for webcams configuration
         ttk.Label(frame, text="Webcam 1 Index:").grid(row=0, column=0, padx=10, pady=5)
-        webcam1_entry = ttk.Entry(frame)
-        webcam1_entry.grid(row=0, column=1, padx=10, pady=5)
-        webcam1_entry.insert(0, self.CL.get_webcam_index('webcam_1'))
+        self.webcam1_entry = ttk.Entry(frame)
+        self.webcam1_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.webcam1_entry.insert(0, self.CL.get_webcam_index('webcam_1'))
         ttk.Label(frame, text="Webcam 2 Index:").grid(row=1, column=0, padx=10, pady=5)
-        webcam2_entry = ttk.Entry(frame)
-        webcam2_entry.grid(row=1, column=1, padx=10, pady=5)
-        webcam2_entry.insert(0, self.CL.get_webcam_index('webcam_2'))
+        self.webcam2_entry = ttk.Entry(frame)
+        self.webcam2_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.webcam2_entry.insert(0, self.CL.get_webcam_index('webcam_2'))
 
         # Add buttons below the existing widgets
         list_button = ttk.Button(frame, text="Identify Webcam", command=scanWebcams.identify_webcams)
@@ -204,13 +203,13 @@ class ConfigUI(tk.Tk):
         notebook.add(frame, text='Monitors')
         # Add widgets for monitors configuration
         ttk.Label(frame, text="Monitor 1 Index:").grid(row=0, column=0, padx=10, pady=5)
-        monitor1_entry = ttk.Entry(frame)
-        monitor1_entry.grid(row=0, column=1, padx=10, pady=5)
-        monitor1_entry.insert(0, self.CL.get_monitor_index('monitor_1'))
+        self.monitor1_entry = ttk.Entry(frame)
+        self.monitor1_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.monitor1_entry.insert(0, self.CL.get_monitor_index('monitor_1'))
         ttk.Label(frame, text="Monitor 2 Index:").grid(row=1, column=0, padx=10, pady=5)
-        monitor2_entry = ttk.Entry(frame)
-        monitor2_entry.grid(row=1, column=1, padx=10, pady=5)
-        monitor2_entry.insert(0, self.CL.get_monitor_index('monitor_2'))
+        self.monitor2_entry = ttk.Entry(frame)
+        self.monitor2_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.monitor2_entry.insert(0, self.CL.get_monitor_index('monitor_2'))
 
         # Add buttons below the existing widgets
         list_button = ttk.Button(frame, text="Identify Monitors", command=scanMonitors.scan_monitor_windows)
@@ -230,20 +229,20 @@ class ConfigUI(tk.Tk):
         sample_rate_scan_btn.grid(row=0, column=2, padx=1, pady=10, sticky='e')
 
         ttk.Label(frame, text="Audio Channels:").grid(row=1, column=0, padx=1, pady=5, sticky='e')
-        audio_channels_entry = ttk.Entry(frame)
-        audio_channels_entry.grid(row=1, column=1, padx=5, pady=5, sticky='w')
-        audio_channels_entry.insert(0, self.CL.get_advanced_audio_options('audio_channels'))
-        audio_channels_entry.config(state='readonly')
+        self.audio_channels_entry = ttk.Entry(frame)
+        self.audio_channels_entry.grid(row=1, column=1, padx=5, pady=5, sticky='w')
+        self.audio_channels_entry.insert(0, self.CL.get_advanced_audio_options('audio_channels'))
+        self.audio_channels_entry.config(state='readonly')
         ttk.Label(frame, text="Chunk Size:").grid(row=2, column=0, padx=1, pady=5, sticky='e')
-        chunk_size_entry = ttk.Entry(frame)
-        chunk_size_entry.grid(row=2, column=1, padx=5, pady=5, sticky='w')
-        chunk_size_entry.insert(0, self.CL.get_advanced_audio_options('chunk_size'))
-        chunk_size_entry.config(state='readonly')
+        self.chunk_size_entry = ttk.Entry(frame)
+        self.chunk_size_entry.grid(row=2, column=1, padx=5, pady=5, sticky='w')
+        self.chunk_size_entry.insert(0, self.CL.get_advanced_audio_options('chunk_size'))
+        self.chunk_size_entry.config(state='readonly')
         ttk.Label(frame, text="Audio Delay:").grid(row=3, column=0, padx=1, pady=5, sticky='e')
-        audio_delay_entry = ttk.Entry(frame)
-        audio_delay_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
-        audio_delay_entry.insert(0, self.CL.get_advanced_audio_options('audio_delay'))
-        audio_delay_entry.config(state='readonly')
+        self.audio_delay_entry = ttk.Entry(frame)
+        self.audio_delay_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
+        self.audio_delay_entry.insert(0, self.CL.get_advanced_audio_options('audio_delay'))
+        self.audio_delay_entry.config(state='readonly')
 
         # Add a scrollable listbox to display the audio devices
         self.sample_rates_listbox = tk.Listbox(frame, height=10, width=50)
@@ -270,9 +269,9 @@ class ConfigUI(tk.Tk):
         notebook.add(frame, text='Advanced Video')
         # Add widgets for advanced video properties configuration
         ttk.Label(frame, text="Video Delay:").grid(row=0, column=0, padx=10, pady=5)
-        video_delay_entry = ttk.Entry(frame)
-        video_delay_entry.grid(row=0, column=1, padx=10, pady=5)
-        video_delay_entry.insert(0, self.CL.get_advanced_video_options('video_delay'))
+        self.video_delay_entry = ttk.Entry(frame)
+        self.video_delay_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.video_delay_entry.insert(0, self.CL.get_advanced_video_options('video_delay'))
 
 if __name__ == "__main__":
     app = ConfigUI()
