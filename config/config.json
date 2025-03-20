@@ -51,7 +51,7 @@
         "sample_rate": 48000,
         "audio_channels": 1,
         "chunk_size": 2048,
-        "audio_delay": 500
+        "audio_delay": 1000
     },
     "advanced_video_properties": {
         "video_delay": 500

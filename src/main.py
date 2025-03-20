@@ -75,25 +75,33 @@ if __name__ == "__main__":
 
   print("Starting main loop...")
   
+  def spk1Mute():
+    global tempSpk1Mute
+    print("spk1Mute")
+    audio_controller.set_spk1_Mute(True)
+    tempSpk1Mute = True
+  
+  def spk2Mute():
+    global tempSpk2Mute
+    print("spk2Mute")
+    audio_controller.set_spk2_Mute(True)
+    tempSpk2Mute = True
+    
+    
   try:
     while True:
       if phidget2.is_button_pressed(0):
         if tempSpk1Mute:
           audio_controller.set_spk1_Mute(False)
           tempSpk1Mute = False
-      else:
-        if not tempSpk1Mute:
-          audio_controller.set_spk1_Mute(True)
-          tempSpk1Mute = True
-
+          timer = threading.Timer(AUDIO_DELAY, spk1Mute)
+          timer.start()
       if phidget1.is_button_pressed(0):
         if tempSpk2Mute:
           audio_controller.set_spk2_Mute(False)
           tempSpk2Mute = False
-      else:
-        if not tempSpk2Mute:
-          audio_controller.set_spk2_Mute(True)
-          tempSpk2Mute = True
+          timer2 = threading.Timer(AUDIO_DELAY, spk2Mute)
+          timer2.start()
           
       # Check for exit condition
       with video_controller.LOCK:
@@ -101,7 +109,7 @@ if __name__ == "__main__":
           print("BREAKING")
           break
       
-      time.sleep(0.1)
+      time.sleep(0.01)
   except Exception as e:
     print(f"Exception: {e}")
   except KeyboardInterrupt:
