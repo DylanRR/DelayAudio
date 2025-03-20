@@ -31,6 +31,7 @@ class phidgetController:
   def close(self):
     for digital_input in self.digital_inputs.values():
       digital_input.close()
+    print (f"Phidget {self.serial_number} controller closed.")
 
 # Example usage
 """

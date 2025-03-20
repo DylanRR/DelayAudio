@@ -121,6 +121,7 @@ class videoController:
     self.webcam_2.close()
     self.monitor_1.close()
     self.monitor_2.close()
+    print ("Video controller closed.")
 
   def exit(self):
     with self.LOCK:
@@ -173,6 +174,9 @@ class videoController:
           if self.EXIT:
             break
         self.__show_frames()
+        if cv2.waitKey(1) & 0xFF == 27:  # 27 is the ASCII code for the Escape key
+          self.exit()
+          break
 
     except IOError as e:
       print(f"Error: {e}")

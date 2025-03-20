@@ -1,5 +1,7 @@
-python3 src/main.py
-Video Controller Started
+ideo Controller Started
+Initializing Audio Controller...
+Input 1: 6, Output 1: 5, Input 2: 6, Output 2: 7
+Audio Delay: 0, Channels: 1, Rate: 48000, Chunk: 2048
 Audio Controller Started
 Expression 'ret' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 1736
 Expression 'AlsaOpen( &alsaApi->baseHostApiRep, params, streamDir, &self->pcm )' failed in 'src/hostapi/alsa/pa_linux_alsa.c', line: 1904

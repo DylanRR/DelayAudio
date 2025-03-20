@@ -65,7 +65,7 @@ class speaker:
 
   def play(self, data):
     self.stream.write(data)
-
+    
   def close(self):
     if self.stream is not None:
       self.stream.stop_stream()
@@ -126,11 +126,12 @@ class audioController:
       self.spk1.close()
     if self.spk2:
       self.spk2.close()
+    print ("Audio controller closed.")
 
   def exit(self):
     with self.LOCK:
       self.EXIT = True
-
+      
   def __updateStreams(self):
     # Read data from input streams
     data1 = self.mic1.getStream()
