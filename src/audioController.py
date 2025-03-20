@@ -134,8 +134,8 @@ class audioController:
       
   def __updateStreams(self):
     # Read data from input streams
-    data1 = self.mic1.getStream()
-    data2 = self.mic2.getStream()
+    data2 = self.mic1.getStream()
+    data1 = self.mic2.getStream()
 
     if self.delay_duration > 0:
       # Add data to buffers

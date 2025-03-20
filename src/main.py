@@ -27,10 +27,13 @@ try:
   MONITOR_INDEX_1 = CL.get_config_value('monitors', ['monitor_1', 'index'])
   MONITOR_INDEX_2 = CL.get_config_value('monitors', ['monitor_2', 'index'])
   AUDIO_DELAY = CL.get_config_value('advanced_audio_properties', ['audio_delay'])
+  AUDIO_DELAY = AUDIO_DELAY / 1000  # Convert milliseconds to seconds
   SAMPLE_RATE = CL.get_config_value('advanced_audio_properties', ['sample_rate'])
   AUDIO_CHANNELS = CL.get_config_value('advanced_audio_properties', ['audio_channels'])
   CHUNK_SIZE = CL.get_config_value('advanced_audio_properties', ['chunk_size'])
   VIDEO_DELAY = CL.get_config_value('advanced_video_properties', ['video_delay'])
+  VIDEO_DELAY = VIDEO_DELAY / 1000  # Convert milliseconds to seconds
+  
 except Exception as e:
   print(f"Error loading configuration Data: {e}")
   exit(1)
@@ -74,7 +77,7 @@ if __name__ == "__main__":
   
   try:
     while True:
-      if phidget1.is_button_pressed(0):
+      if phidget2.is_button_pressed(0):
         if tempSpk1Mute:
           audio_controller.set_spk1_Mute(False)
           tempSpk1Mute = False
@@ -83,7 +86,7 @@ if __name__ == "__main__":
           audio_controller.set_spk1_Mute(True)
           tempSpk1Mute = True
 
-      if phidget2.is_button_pressed(0):
+      if phidget1.is_button_pressed(0):
         if tempSpk2Mute:
           audio_controller.set_spk2_Mute(False)
           tempSpk2Mute = False

@@ -128,8 +128,8 @@ class videoController:
       self.EXIT = True
 
   def __show_frames(self):
-    frame1 = self.webcam_1.get_frame()
-    frame2 = self.webcam_2.get_frame()
+    frame1 = self.webcam_2.get_frame()
+    frame2 = self.webcam_1.get_frame()
 
     if self.video_delay > 0:
       self.buffer_1.append(frame1)

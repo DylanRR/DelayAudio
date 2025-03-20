@@ -17,10 +17,10 @@
     },
     "microphones": {
         "microphone_1": {
-            "index": 2
+            "index": 0
         },
         "microphone_2": {
-            "index": 5
+            "index": 10
         }
     },
     "speakers": {
@@ -33,10 +33,10 @@
     },
     "webcams": {
         "webcam_1": {
-            "index": 2
+            "index": 0
         },
         "webcam_2": {
-            "index": 0
+            "index": 2
         }
     },
     "monitors": {
@@ -54,6 +54,6 @@
         "audio_delay": 500
     },
     "advanced_video_properties": {
-        "video_delay": 0
+        "video_delay": 500
     }
 }
