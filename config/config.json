@@ -1,0 +1,59 @@
+{
+    "phidgets": {
+        "phidget_1": {
+            "serial_number": 678328,
+            "active_channels": [
+                0,
+                1
+            ]
+        },
+        "phidget_2": {
+            "serial_number": 678505,
+            "active_channels": [
+                0,
+                1
+            ]
+        }
+    },
+    "microphones": {
+        "microphone_1": {
+            "index": 6
+        },
+        "microphone_2": {
+            "index": 9
+        }
+    },
+    "speakers": {
+        "speaker_1": {
+            "index": 5
+        },
+        "speaker_2": {
+            "index": 7
+        }
+    },
+    "webcams": {
+        "webcam_1": {
+            "index": 2
+        },
+        "webcam_2": {
+            "index": 0
+        }
+    },
+    "monitors": {
+        "monitor_1": {
+            "index": 0
+        },
+        "monitor_2": {
+            "index": 1
+        }
+    },
+    "advanced_audio_properties": {
+        "sample_rate": 48000,
+        "audio_channels": 1,
+        "chunk_size": 2048,
+        "audio_delay": 0
+    },
+    "advanced_video_properties": {
+        "video_delay": 0
+    }
+}

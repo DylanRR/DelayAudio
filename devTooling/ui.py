@@ -1,19 +1,23 @@
 import tkinter as tk
 from tkinter import ttk
 import scanPhidgets
-import configuration_loader_v2 as configuration_loader
 import scanAudio
 import scanWebcams
 import scanMonitors
 import scanSampleRates
+import sys
 import os
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from config import configuration_loader_v2 as configuration_loader
 
 class ConfigUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Configuration UI")
         self.geometry("600x400")
-        self.config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+        self.config_path = configuration_loader.get_config_path()
         self.CL = configuration_loader.ConfigurationLoader(self.config_path)
         self.create_widgets()
 
@@ -108,7 +112,38 @@ class ConfigUI(tk.Tk):
         self.identify_output_label.config(text=output)
         
     def save_phidget_config(self):
-        pass    #TODO: Add functionality to save phidget configuration
+        ph1_serial = self.phidget1_serial_entry.get()
+        if not self.CL.set_config_value('phidgets', ['phidget_1', 'serial_number'], ph1_serial):
+            print("Failed to save Phidget 1 serial number.")
+        else:
+            print("Phidget 1 serial number saved successfully.")
+            
+        ph1_channels = self.phidget1_channels_entry.get()
+        if (configuration_loader.is_valid_int_list_string(ph1_channels)):
+            ph1_list = configuration_loader.string_to_int_list(ph1_channels)
+            if not self.CL.set_config_value('phidgets', ['phidget_1', 'active_channels'], ph1_list):
+                print("Failed to save Phidget 1 channels.")
+            else:
+                print("Phidget 1 channels saved successfully.")
+        else:
+            print("Phidget 1 invalid channels string.")
+                
+        ph2_serial = self.phidget2_serial_entry.get()
+        if not self.CL.set_config_value('phidgets', ['phidget_2', 'serial_number'], ph2_serial):
+            print("Failed to save Phidget 2 serial number.")
+        else:
+            print("Phidget 2 serial number saved successfully.")
+            
+        ph2_channels = self.phidget2_channels_entry.get()
+        if (configuration_loader.is_valid_int_list_string(ph2_channels)):
+            ph2_list = configuration_loader.string_to_int_list(ph2_channels)
+            if not self.CL.set_config_value('phidgets', ['phidget_2', 'active_channels'], ph2_list):
+                print("Failed to save Phidget 2 channels.")
+            else:
+                print("Phidget 2 channels saved successfully.")
+        else:
+            print("Phidget 2 invalid channels string.")
+        
         
 
     def create_microphones_tab(self, notebook):
@@ -150,7 +185,17 @@ class ConfigUI(tk.Tk):
             self.audio_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
             
     def save_microphone_config(self):
-        pass #TODO: Add functionality to save microphone configuration
+        mic_1_index = self.mic1_entry.get()
+        if not self.CL.set_config_value('microphones', ['microphone_1', 'index'], mic_1_index):
+            print("Failed to save Microphone 1 index.")
+        else:
+            print("Microphone 1 index saved successfully.")
+        
+        mic_2_index = self.mic2_entry.get()
+        if not self.CL.set_config_value('microphones', ['microphone_2', 'index'], mic_2_index):
+            print("Failed to save Microphone 2 index.")
+        else:
+            print("Microphone 2 index saved successfully.")
 
     def create_speakers_tab(self, notebook):
         frame = ttk.Frame(notebook)
@@ -197,7 +242,17 @@ class ConfigUI(tk.Tk):
             self.speaker_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
 
     def save_speaker_config(self):
-        pass    #TODO: Add functionality to save speaker configuration
+        spk1_index = self.speaker1_entry.get()
+        if not self.CL.set_config_value('speakers', ['speaker_1', 'index'], spk1_index):
+            print("Failed to save Speaker 1 index.")
+        else:
+            print("Speaker 1 index saved successfully.")
+            
+        spk2_index = self.speaker2_entry.get()
+        if not self.CL.set_config_value('speakers', ['speaker_2', 'index'], spk2_index):
+            print("Failed to save Speaker 2 index.")
+        else:
+            print("Speaker 2 index saved successfully.")
 
     def create_webcams_tab(self, notebook):
         frame = ttk.Frame(notebook)
@@ -221,7 +276,17 @@ class ConfigUI(tk.Tk):
         save_btn.grid(row=2, column=1, padx=10, pady=10, sticky='w')
 
     def save_webcam_config(self):
-        pass    #TODO: Add functionality to save webcam configuration   
+        web1_index = self.webcam1_entry.get()
+        if not self.CL.set_config_value('webcams', ['webcam_1', 'index'], web1_index):
+            print("Failed to save Webcam 1 index.")
+        else:
+            print("Webcam 1 index saved successfully.")
+            
+        web2_index = self.webcam2_entry.get()
+        if not self.CL.set_config_value('webcams', ['webcam_2', 'index'], web2_index):
+            print("Failed to save Webcam 2 index.")
+        else:
+            print("Webcam 2 index saved successfully.")
 
     def create_monitors_tab(self, notebook):
         frame = ttk.Frame(notebook)
@@ -245,7 +310,17 @@ class ConfigUI(tk.Tk):
         save_btn.grid(row=2, column=1, padx=10, pady=10, sticky='w')
         
     def save_monitor_config(self):
-        pass    #TODO: Add functionality to save monitor configuration
+        mon1_index = self.monitor1_entry.get()
+        if not self.CL.set_config_value('monitors', ['monitor_1', 'index'], mon1_index):
+            print("Failed to save Monitor 1 index.")
+        else:
+            print("Monitor 1 index saved successfully.")
+            
+        mon2_index = self.monitor2_entry.get()
+        if not self.CL.set_config_value('monitors', ['monitor_2', 'index'], mon2_index):
+            print("Failed to save Monitor 2 index.")
+        else:
+            print("Monitor 2 index saved successfully.")
 
     def create_advanced_audio_tab(self, notebook):
         frame = ttk.Frame(notebook)
@@ -274,7 +349,7 @@ class ConfigUI(tk.Tk):
         self.audio_delay_entry = ttk.Entry(frame)
         self.audio_delay_entry.grid(row=3, column=1, padx=5, pady=5, sticky='w')
         self.audio_delay_entry.insert(0, self.CL.get_config_value('advanced_audio_properties', ['audio_delay']))
-        self.audio_delay_entry.config(state='readonly')
+        ttk.Label(frame, text="(Milliseconds)").grid(row=3, column=2, padx=1, pady=5, sticky='w')
         
         #Save Button
         save_btn = ttk.Button(frame, text="Save", command=self.save_audio_config)
@@ -300,7 +375,29 @@ class ConfigUI(tk.Tk):
                 self.sample_rates_listbox.insert(tk.END, f"  Supported sample rate: {rate}")
                 
     def save_audio_config(self):
-        pass    #TODO: Add functionality to save audio configuration
+        sample_rate = self.sample_rate_entry.get()
+        if not self.CL.set_config_value('advanced_audio_properties', ['sample_rate'], sample_rate):
+            print("Failed to save Sample Rate.")
+        else:
+            print("Sample Rate saved successfully.")
+            
+        audio_channels = self.audio_channels_entry.get()
+        if not self.CL.set_config_value('advanced_audio_properties', ['audio_channels'], audio_channels):
+            print("Failed to save Audio Channels.")
+        else:
+            print("Audio Channels saved successfully.")
+            
+        chunk_size = self.chunk_size_entry.get()
+        if not self.CL.set_config_value('advanced_audio_properties', ['chunk_size'], chunk_size):
+            print("Failed to save Chunk Size.")
+        else:
+            print("Chunk Size saved successfully.")
+            
+        audio_delay = self.audio_delay_entry.get()
+        if not self.CL.set_config_value('advanced_audio_properties', ['audio_delay'], audio_delay):
+            print("Failed to save Audio Delay.")
+        else:
+            print("Audio Delay saved successfully.")
       
 
     def create_advanced_video_tab(self, notebook):
@@ -311,13 +408,17 @@ class ConfigUI(tk.Tk):
         self.video_delay_entry = ttk.Entry(frame)
         self.video_delay_entry.grid(row=0, column=1, padx=10, pady=5)
         self.video_delay_entry.insert(0, self.CL.get_config_value('advanced_video_properties', ['video_delay']))
-        
+        ttk.Label(frame, text="(Milliseconds)").grid(row=0, column=2, padx=10, pady=5, sticky='w')
         #Save Button
         save_btn = ttk.Button(frame, text="Save", command=self.save_video_config)
         save_btn.grid(row=1, column=0, padx=10, pady=10, sticky='w')
         
     def save_video_config(self):
-        pass    #TODO: Add functionality to save video configuration
+        video_delay = self.video_delay_entry.get()
+        if not self.CL.set_config_value('advanced_video_properties', ['video_delay'], video_delay):
+            print("Failed to save Video Delay.")
+        else:
+            print("Video Delay saved successfully.")
 
 if __name__ == "__main__":
     app = ConfigUI()

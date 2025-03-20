@@ -55,12 +55,15 @@ class ConfigurationLoader:
     else:
         final_key = key
 
-    # Convert the value to an integer if the existing value is an integer
-    if final_key in current_level and isinstance(current_level[final_key], int):
+    # Convert the value to an integer or float if the existing value is numeric
+    if final_key in current_level and isinstance(current_level[final_key], (int, float)):
         try:
-            value = int(value)  # Attempt to convert the value to an integer
+            if isinstance(current_level[final_key], int):
+                value = int(value)  # Convert to integer if the existing value is an integer
+            elif isinstance(current_level[final_key], float):
+                value = float(value)  # Convert to float if the existing value is a float
         except (ValueError, TypeError):
-            print(f"Failed to convert value '{value}' to an integer for key '{final_key}'.")
+            print(f"Failed to convert value '{value}' to a numeric type for key '{final_key}'.")
             return False
 
     # Update the value
@@ -241,7 +244,9 @@ def string_to_int_list(input_string):
         print(f"Error converting string to list of integers: {e}")
         return []
 
-  
+def get_config_path():
+    # Dynamically locate the config.json file
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.json')
 
 # Example usage
 """
