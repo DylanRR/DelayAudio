@@ -114,15 +114,7 @@ class ConfigurationLoader:
         # If the key is a string, return the value directly
         return current_level.get(key, None)
   
-  
-  
-  
-  def is_valid_integer(self, value):
-    try:
-      int(value)
-      return True
-    except (ValueError, TypeError):
-      return False
+
   
   def is_config_valid(self):
       # Define the required structure of the configuration file
