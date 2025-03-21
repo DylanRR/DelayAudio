@@ -10,6 +10,8 @@ import select
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import configuration_loader_v2 as configuration_loader
+from config import advancedAudioScan as AAS
+from config import advancedWebcamScan as AWS
 
 try:
   config_path = configuration_loader.get_config_path()
@@ -18,12 +20,24 @@ try:
   PHIDGET_2_SERIAL_NUMBER = CL.get_config_value('phidgets', ['phidget_2', 'serial_number'])
   PHIDGET_1_CHANNELS = CL.get_config_value('phidgets', ['phidget_1', 'active_channels'])
   PHIDGET_2_CHANNELS = CL.get_config_value('phidgets', ['phidget_2', 'active_channels'])
+  
+  
   MIC_INDEX_1 = CL.get_config_value('microphones', ['microphone_1', 'index'])
   MIC_INDEX_2 = CL.get_config_value('microphones', ['microphone_2', 'index'])
+
+  #MIC_INDEX_1 = AAS.get_card_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6')
+  #MIC_INDEX_2 = AAS.get_card_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6')
+  
   SPEAKER_INDEX_1 = CL.get_config_value('speakers', ['speaker_1', 'index'])
   SPEAKER_INDEX_2 = CL.get_config_value('speakers', ['speaker_2', 'index'])
+  
+  """
   WEBCAM_INDEX_1 = CL.get_config_value('webcams', ['webcam_1', 'index'])
   WEBCAM_INDEX_2 = CL.get_config_value('webcams', ['webcam_2', 'index'])
+  """
+  WEBCAM_INDEX_1 = AWS.get_cv2_index_from_serial('89DD42EF')
+  WEBCAM_INDEX_2 = AWS.get_cv2_index_from_serial('A55D42EF')
+  
   MONITOR_INDEX_1 = CL.get_config_value('monitors', ['monitor_1', 'index'])
   MONITOR_INDEX_2 = CL.get_config_value('monitors', ['monitor_2', 'index'])
   AUDIO_DELAY = CL.get_config_value('advanced_audio_properties', ['audio_delay'])
@@ -88,20 +102,32 @@ if __name__ == "__main__":
     tempSpk2Mute = True
     
     
+  spk1Mute()
+  spk2Mute()
+    
   try:
     while True:
-      if phidget2.is_button_pressed(0):
-        if tempSpk1Mute:
-          audio_controller.set_spk1_Mute(False)
-          tempSpk1Mute = False
-          timer = threading.Timer(AUDIO_DELAY, spk1Mute)
-          timer.start()
+      
       if phidget1.is_button_pressed(0):
-        if tempSpk2Mute:
-          audio_controller.set_spk2_Mute(False)
-          tempSpk2Mute = False
-          timer2 = threading.Timer(AUDIO_DELAY, spk2Mute)
-          timer2.start()
+        audio_controller.set_spk1_Mute(False)
+        while phidget1.is_button_pressed(0):
+          with video_controller.LOCK:
+            if video_controller.EXIT:
+              print("BREAKING")
+              break
+        timer = threading.Timer(AUDIO_DELAY, spk1Mute)
+        timer.start()
+        
+      if phidget2.is_button_pressed(0):
+        audio_controller.set_spk2_Mute(False)
+        while phidget2.is_button_pressed(0):
+          with video_controller.LOCK:
+            if video_controller.EXIT:
+              print("BREAKING")
+              break
+        timer2 = threading.Timer(AUDIO_DELAY, spk2Mute)
+        timer2.start()
+      
           
       # Check for exit condition
       with video_controller.LOCK:

@@ -157,19 +157,19 @@ class audioController:
       delayed_data2 = data2
 
     # Write delayed data to output streams
-    with self.MUTE_LOCK:
-      if not self.mute_spk_1:
-        self.spk1.play(delayed_data1)
-      if not self.mute_spk_2:
-        self.spk2.play(delayed_data2)
+    #with self.MUTE_LOCK:
+    if not self.mute_spk_1:
+      self.spk1.play(delayed_data1)
+    if not self.mute_spk_2:
+      self.spk2.play(delayed_data2)
 
   def set_spk1_Mute(self, mute):
-    with self.MUTE_LOCK:
-      self.mute_spk_1 = mute
+    #with self.MUTE_LOCK:
+    self.mute_spk_1 = mute
 
   def set_spk2_Mute(self, mute):
-    with self.MUTE_LOCK:
-      self.mute_spk_2 = mute
+    #with self.MUTE_LOCK:
+    self.mute_spk_2 = mute
 
   def run(self):
     try:

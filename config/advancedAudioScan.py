@@ -94,11 +94,61 @@ def get_device_index_from_hardware_number(hardware_number):
     return None
 
 
+def get_pyaudio_index_from_serial(serial_number):
+    """
+    Retrieve the PyAudio device index for a microphone based on its serial number.
+
+    Args:
+        serial_number (str): The serial number of the microphone.
+
+    Returns:
+        int: The PyAudio device index, or None if not found.
+    """
+    alsa_card_index = get_card_index_from_serial(serial_number)
+    if alsa_card_index is not None:
+        return int(get_device_index_from_hardware_number(int(alsa_card_index)))
+    else:
+        print(f"No device found with serial number {serial_number}")
+    return None
+
+def get_device_index_from_name(name):
+    """
+    Retrieve the PyAudio device index for a given name.
+    Matches if the passed-in name is contained in the device name (case insensitive).
+
+    Args:
+        name (str): The partial or full name of a device (e.g., 'KT USB Audio').
+
+    Returns:
+        int: The PyAudio device index, or None if not found.
+    """
+    audio = pyaudio.PyAudio()
+    try:
+        # Iterate through all PyAudio devices
+        for i in range(audio.get_device_count()):
+            info = audio.get_device_info_by_index(i)
+            device_name = info['name'].lower()
+
+            # Check if the passed-in name is contained in the device name (case insensitive)
+            if name.lower() in device_name:
+                return i  # Return the PyAudio device index
+
+    except Exception as e:
+        print(f"Error retrieving device index: {e}")
+        return None
+
+    finally:
+        audio.terminate()
+
 
 if __name__ == "__main__":
-    serial_number = "4B0A956FEE7B486C95038442A3087917"  # Replace with the serial number of the first microphone
+    serial_number1 = 'MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6'
+    serial_number2 = 'MVX2U#2-b024f7fd59cb675ab7b3afcfe2015bed'
+    
+    name1 = 'KT USB Audio: - (hw:1,0)' #This is just for testing we would not want to include the HW number in the name as it could change
+    name2 = 'KT USB Audio: - (hw:3,0)'
 
-    alsa_card_index = get_card_index_from_serial(serial_number)
-    pyaudioIndex = get_device_index_from_hardware_number(str(alsa_card_index))
-
-    print(f"Microphone 1 Serial: {serial_number} ALSA Card Index: {alsa_card_index} PyAudio Index: {pyaudioIndex}")
+    print(f"Microphone 1 Serial: {serial_number1} PyAudio Index: {get_pyaudio_index_from_serial(serial_number1)}")
+    print(f"Microphone 2 Serial: {serial_number2} PyAudio Index: {get_pyaudio_index_from_serial(serial_number2)}")
+    print(f"Speaker 1 Name: {name1} PyAudio Index: {get_device_index_from_name(name1)}")
+    print(f"Speaker 2 Name: {name2} PyAudio Index: {get_device_index_from_name(name2)}")

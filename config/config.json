@@ -20,7 +20,7 @@
             "index": 0
         },
         "microphone_2": {
-            "index": 10
+            "index": 5
         }
     },
     "speakers": {
@@ -54,6 +54,6 @@
         "audio_delay": 1000
     },
     "advanced_video_properties": {
-        "video_delay": 500
+        "video_delay": 0
     }
 }
