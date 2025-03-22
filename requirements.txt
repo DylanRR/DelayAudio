@@ -1,0 +1,7 @@
+numpy
+sounddevice
+phidget22
+opencv-python
+screeninfo
+pyaudio
+pyudev
