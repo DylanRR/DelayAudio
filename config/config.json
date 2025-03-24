@@ -17,26 +17,32 @@
     },
     "microphones": {
         "microphone_1": {
-            "index": 0
+            "index": 0,
+            "serial_number": 0
         },
         "microphone_2": {
-            "index": 5
+            "index": 5,
+            "serial_number": 0
         }
     },
     "speakers": {
         "speaker_1": {
-            "index": 1
+            "index": 1,
+            "device_name": "KT Audio"
         },
         "speaker_2": {
-            "index": 3
+            "index": 3,
+            "device_name": "KT Audio"
         }
     },
     "webcams": {
         "webcam_1": {
-            "index": 0
+            "index": 0,
+            "serial_number": 0
         },
         "webcam_2": {
-            "index": 2
+            "index": 2,
+            "serial_number": 0
         }
     },
     "monitors": {
