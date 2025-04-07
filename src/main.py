@@ -18,8 +18,10 @@ CL = configuration_loader.ConfigurationLoader(config_path)
 
 # Configurable Variables
 
-MIC_INDEX_1 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6')
+MIC_INDEX_1 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b024f7fd59cb675ab7b3afcfe2015bed')
+print(f"Mic 1 Index: {MIC_INDEX_1}")
 MIC_INDEX_2 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6')
+print(f"Mic 2 Index: {MIC_INDEX_2}")
 
 SPEAKER1_INDEX = AAS.get_device_index_from_name('KT USB Audio')
 SPEAKER2_INDEX = AAS.get_device_index_from_name('AB13X USB Audio')
