@@ -25,10 +25,10 @@
     },
     "speakers": {
         "speaker_1": {
-            "index": 1
+            "index": 5
         },
         "speaker_2": {
-            "index": 3
+            "index": 8
         }
     },
     "webcams": {

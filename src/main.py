@@ -24,7 +24,9 @@ MIC_INDEX_2 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce7
 print(f"Mic 2 Index: {MIC_INDEX_2}")
 
 SPEAKER1_INDEX = AAS.get_device_index_from_name('KT USB Audio')
+print(f"Speaker 1 Index: {SPEAKER1_INDEX}")
 SPEAKER2_INDEX = AAS.get_device_index_from_name('AB13X USB Audio')
+print(f"Speaker 2 Index: {SPEAKER2_INDEX}")
 
 AUDIO_DELAY = CL.get_config_value('advanced_audio_properties', ['audio_delay']) / 1000 # Convert milliseconds to seconds
 SAMPLE_RATE = CL.get_config_value('advanced_audio_properties', ['sample_rate'])
@@ -60,67 +62,97 @@ phidget2.setChannel(0)
 trigger_lock = threading.Lock()
 
 station1_enabled = False
+station1_exiting = False
 station2_enabled = False
+station2_exiting = False
 
 station_lock = threading.Lock()
 
 def station1_trigger():
-    global station1_enabled
-    with station_lock:
-      try:
-          print("Phidget 1: Button pressed - Recording & Playing")
-          with sd.InputStream(device=MIC_INDEX_1, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as mic_stream, \
-              sd.OutputStream(device=SPEAKER2_INDEX, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as speaker_stream:
-              while station1_enabled:  # While the button is held
-                  audio_chunk, _ = mic_stream.read(BUFFER_SIZE)  # Read from mic
-                  audio_buffer_1.append(audio_chunk)  # Store in buffer
+  global station1_enabled, station1_exiting
+  with station_lock:
+    try:
+      print("Phidget 1: Button pressed - Recording & Playing")
+      with sd.InputStream(device=MIC_INDEX_1, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as mic_stream, \
+        sd.OutputStream(device=SPEAKER2_INDEX, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as speaker_stream:
+        while station1_enabled:  # While the button is held
+          audio_chunk, _ = mic_stream.read(BUFFER_SIZE)  # Read from mic
+          audio_buffer_1.append(audio_chunk)  # Store in buffer
 
-                  # Maintain delay buffer size
-                  if len(audio_buffer_1) * (BUFFER_SIZE / SAMPLE_RATE) > AUDIO_DELAY:
-                      delayed_audio = audio_buffer_1.pop(0)
-                      speaker_stream.write(delayed_audio)  # Play delayed audio
-      except sd.PortAudioError as e:
-          print(f"Audio error (Phidget 1): {e}")
+          # Maintain delay buffer size
+          if len(audio_buffer_1) * (BUFFER_SIZE / SAMPLE_RATE) > AUDIO_DELAY:
+            delayed_audio = audio_buffer_1.pop(0)
+            speaker_stream.write(delayed_audio)  # Play delayed audio
+        
+        #Exiting audio
+        while audio_buffer_1:
+          delayed_audio = audio_buffer_1.pop(0)
+          speaker_stream.write(delayed_audio)
+        station1_exiting = False
+                  
+    except sd.PortAudioError as e:
+      print(f"Audio error (Phidget 1): {e}")
 
-def station2_trigger():
-    global station2_enabled
-    with station_lock:
-      try:
-          print("Phidget 2: Button pressed - Recording & Playing")
-          with sd.InputStream(device=MIC_INDEX_2, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as mic_stream, \
-              sd.OutputStream(device=SPEAKER1_INDEX, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as speaker_stream:
-              while station2_enabled:  # While the button is held
-                  audio_chunk, _ = mic_stream.read(BUFFER_SIZE)  # Read from mic
-                  audio_buffer_2.append(audio_chunk)  # Store in buffer
+def station2_trigger():  
+  global station2_enabled, station2_exiting 
+  with station_lock:
+    try:
+      print("Phidget 2: Button pressed - Recording & Playing")
+      with sd.InputStream(device=MIC_INDEX_2, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as mic_stream, \
+        sd.OutputStream(device=SPEAKER1_INDEX, channels=1, samplerate=SAMPLE_RATE, blocksize=BUFFER_SIZE) as speaker_stream:
+        while station2_enabled:  # While the button is held
+          audio_chunk, _ = mic_stream.read(BUFFER_SIZE)  # Read from mic
+          audio_buffer_2.append(audio_chunk)  # Store in buffer
 
-                  # Maintain delay buffer size
-                  if len(audio_buffer_2) * (BUFFER_SIZE / SAMPLE_RATE) > AUDIO_DELAY:
-                      delayed_audio = audio_buffer_2.pop(0)
-                      speaker_stream.write(delayed_audio)  # Play delayed audio
-      except sd.PortAudioError as e:
-          print(f"Audio error (Phidget 2): {e}")
+          # Maintain delay buffer size
+          if len(audio_buffer_2) * (BUFFER_SIZE / SAMPLE_RATE) > AUDIO_DELAY:
+            delayed_audio = audio_buffer_2.pop(0)
+            speaker_stream.write(delayed_audio)  # Play delayed audio
+            
+        #Exiting audio
+        while audio_buffer_2:
+          delayed_audio = audio_buffer_2.pop(0)
+          speaker_stream.write(delayed_audio)
+        station2_exiting = False
+        
+    except sd.PortAudioError as e:
+      print(f"Audio error (Phidget 2): {e}")
 
 def phidget1_trigger(self, state):
-    global station1_enabled
-    if state:  # Button pressed
-        if not station1_enabled:  # Check if not already enabled
-            station1_enabled = True
-            station1_thread = threading.Thread(target=station1_trigger)
-            station1_thread.start()
-    else:  # Button released
-        station1_enabled = False
-        time.sleep(0.1)  # Allow time for thread to properly terminate
+  global station1_enabled, station1_exiting
+  if state:  # Button pressed
+    if not station1_enabled:  # Check if not already enabled
+      station1_enabled = True
+      station1_thread = threading.Thread(target=station1_trigger)
+      station1_thread.start()
+  else:  # Button released
+    print("Phidget 1: Button released")
+    station1_enabled = False
+    station1_exiting = True
+    # Wait for the thread to finish
+    print ("Waiting for audio to finish")
+    while station1_exiting:
+      time.sleep(0.3) # Free up CPU
+    print ("Finished waiting for audio")
+    time.sleep(0.1)  # Allow time for thread to fully terminate
 
 def phidget2_trigger(self, state):
-    global station2_enabled
-    if state:  # Button pressed
-        if not station2_enabled:  # Check if not already enabled
-            station2_enabled = True
-            station2_thread = threading.Thread(target=station2_trigger)
-            station2_thread.start()
-    else:  # Button released
-        station2_enabled = False
-        time.sleep(0.1)  # Allow time for thread to properly terminate
+  global station2_enabled, station2_exiting
+  if state:  # Button pressed
+    if not station2_enabled:  # Check if not already enabled
+      station2_enabled = True
+      station2_thread = threading.Thread(target=station2_trigger)
+      station2_thread.start()
+  else:  # Button released
+    print("Phidget 2: Button released")
+    station2_enabled = False
+    station2_exiting = True
+    # Wait for the thread to finish
+    print ("Waiting for audio to finish")
+    while station2_exiting:
+      time.sleep(0.3)  # Free up CPU
+    print ("Finished waiting for audio")
+    time.sleep(0.1)  # Allow time for thread to fully terminate
 
 # Set up handlers
 phidget1.setOnStateChangeHandler(phidget1_trigger)
@@ -137,6 +169,9 @@ try:
     phidget1.openWaitForAttachment(5000)
     phidget2.openWaitForAttachment(5000)
     print("Phidgets attached. Waiting for button press...")
+    time.sleep(1)  # Allow time for Phidgets to initialize
+    station1_exiting = False
+    station2_exiting = False
 
     while True:
       # Check for exit condition

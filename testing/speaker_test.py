@@ -6,7 +6,7 @@ import sounddevice
 # Define the audio file and device IDs
 AUDIO_FILE = "test_audio.wav"
 SPEAKER_1_ID = 1
-SPEAKER_2_ID = 7
+SPEAKER_2_ID = 9
 SAMPLE_RATE = 48000
 
 def play_audio(device_id, volume):
