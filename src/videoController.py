@@ -135,8 +135,8 @@ class videoController:
     if self.video_delay > 0:
       self.__process_delayed_frames(frame1, frame2)
     else:
-      overlay_images_frame1 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
-      overlay_images_frame2 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame1 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame2 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
       self.__display_frame(self.monitor_1, frame1, overlay_images_frame1)
       self.__display_frame(self.monitor_2, frame2, overlay_images_frame2)
 
@@ -146,12 +146,12 @@ class videoController:
 
     if len(self.buffer_1) == self.buffer_1.maxlen:
       delayed_frame1 = self.buffer_1.popleft()
-      overlay_images_frame1 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame1 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
       self.__display_frame(self.monitor_1, delayed_frame1, overlay_images_frame1)
 
     if len(self.buffer_2) == self.buffer_2.maxlen:
       delayed_frame2 = self.buffer_2.popleft()
-      overlay_images_frame2 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame2 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
       self.__display_frame(self.monitor_2, delayed_frame2, overlay_images_frame2)
 
   def __display_frame(self, monitor, frame, overlay_images):
