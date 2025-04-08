@@ -166,34 +166,31 @@ class videoController:
 
     # Define font and scale
     font = cv2.FONT_HERSHEY_DUPLEX
-    font_scale = 1
-    thickness = 2
+    font_scale = 0.3  # Small font scale for bottom-right text
+    thickness = 1  # Slightly increased thickness for better readability
 
     # Add top-left text with blue box
-    top_left_text_size = cv2.getTextSize(top_left_text, font, font_scale, thickness)[0]
-    top_left_box_coords = (0, 0, top_left_text_size[0] + 10, top_left_text_size[1] + 10)  # Adjusted to start at (0, 0)
+    top_left_text_size = cv2.getTextSize(top_left_text, font, 1, 2)[0]
+    top_left_box_coords = (0, 0, top_left_text_size[0] + 10, top_left_text_size[1] + 10)
     cv2.rectangle(frame, (top_left_box_coords[0], top_left_box_coords[1]),
                   (top_left_box_coords[2], top_left_box_coords[3]), blue_color, -1)
     cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
-                font, font_scale, white_color, thickness)
-
-    # Define a smaller font scale for the bottom-right text
-    font_scale_small = 0.3  # Reduced font scale for better fit
+                font, 1, white_color, 2, cv2.LINE_AA)
 
     # Add bottom-right text with blue box
     bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
     bottom_right_text_line2 = "for sound to travel from Earth to the Moon. (1.5 seconds)"
-    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale_small, thickness)[0]
-    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale_small, thickness)[0]
+    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale, thickness)[0]
+    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale, thickness)[0]
     frame_height, frame_width = frame.shape[:2]
 
     # Calculate the box size to fit both lines
     box_width = max(bottom_right_text_size_line1[0], bottom_right_text_size_line2[0]) + 10
     box_height = bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 15
     bottom_right_box_coords = (frame_width - box_width - 10,
-                              frame_height - box_height - 10,
-                              frame_width - 10,
-                              frame_height - 10)
+                               frame_height - box_height - 10,
+                               frame_width - 10,
+                               frame_height - 10)
 
     # Draw the blue box
     cv2.rectangle(frame, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
@@ -202,12 +199,12 @@ class videoController:
     # Add the first line of text
     cv2.putText(frame, bottom_right_text_line1,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + 5),
-                font, font_scale_small, white_color, thickness)
+                font, font_scale, white_color, thickness, cv2.LINE_AA)
 
     # Add the second line of text
     cv2.putText(frame, bottom_right_text_line2,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 10),
-                font, font_scale_small, white_color, thickness)
+                font, font_scale, white_color, thickness, cv2.LINE_AA)
 
     return frame
 
