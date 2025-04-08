@@ -142,15 +142,15 @@ class videoController:
 
     if len(self.buffer_1) == self.buffer_1.maxlen:
       delayed_frame1 = self.buffer_1.popleft()
-      self.__display_frame(self.monitor_1, delayed_frame1, "LUNAR BASE")
+      self.__display_frame(self.monitor_1, delayed_frame1, "MISSION CONTROL")
 
     if len(self.buffer_2) == self.buffer_2.maxlen:
       delayed_frame2 = self.buffer_2.popleft()
-      self.__display_frame(self.monitor_2, delayed_frame2, "MISSION CONTROL")
+      self.__display_frame(self.monitor_2, delayed_frame2, "LUNAR BASE")
 
   def __process_live_frames(self, frame1, frame2):
-    self.__display_frame(self.monitor_1, frame1, "LUNAR BASE")
-    self.__display_frame(self.monitor_2, frame2, "MISSION CONTROL")
+    self.__display_frame(self.monitor_1, frame1, "MISSION CONTROL")
+    self.__display_frame(self.monitor_2, frame2, "LUNAR BASE")
 
   def __display_frame(self, monitor, frame, overlay_text):
     if frame is not None:
@@ -165,23 +165,28 @@ class videoController:
     white_color = (255, 255, 255)  # White in BGR
 
     # Define font and scale
-    font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-    font_scale = 1  # Small font scale for bottom-right text
-    thickness = 1  # Slightly increased thickness for better readability
+    top_left_font = cv2.FONT_HERSHEY_COMPLEX
+    top_left_font_scale = .8
+    top_left_font_thickness = 2
+    
+    bottom_right_font = cv2.FONT_HERSHEY_COMPLEX_SMALL
+    bottom_right_font_scale = 0.6
+    bottom_right_font_thickness = 1
 
-    # Add top-left text with blue box
-    top_left_text_size = cv2.getTextSize(top_left_text, font, 1, 2)[0]
+    # Create a copy of the frame for transparency effect
+    overlay = frame.copy()
+
+    # Add top-left semi-transparent blue box
+    top_left_text_size = cv2.getTextSize(top_left_text, top_left_font, top_left_font_scale, top_left_font_thickness)[0]
     top_left_box_coords = (0, 0, top_left_text_size[0] + 10, top_left_text_size[1] + 10)
-    cv2.rectangle(frame, (top_left_box_coords[0], top_left_box_coords[1]),
+    cv2.rectangle(overlay, (top_left_box_coords[0], top_left_box_coords[1]),
                   (top_left_box_coords[2], top_left_box_coords[3]), blue_color, -1)
-    cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
-                font, 1, white_color, 2, cv2.LINE_AA)
 
-    # Add bottom-right text with blue box
+    # Add bottom-right semi-transparent blue box
     bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
     bottom_right_text_line2 = "for sound to travel from Earth to the Moon. (1.5 seconds)"
-    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale, thickness)[0]
-    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale, thickness)[0]
+    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, bottom_right_font, bottom_right_font_scale, bottom_right_font_thickness)[0]
+    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, bottom_right_font, bottom_right_font_scale, bottom_right_font_thickness)[0]
     frame_height, frame_width = frame.shape[:2]
 
     # Calculate the box size to fit both lines
@@ -192,19 +197,25 @@ class videoController:
                                frame_width,
                                frame_height)
 
-    # Draw the blue box
-    cv2.rectangle(frame, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
+    # Draw the bottom-right blue box
+    cv2.rectangle(overlay, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
                   (bottom_right_box_coords[2], bottom_right_box_coords[3]), blue_color, -1)
 
-    # Add the first line of text
+    # Blend the overlay with the original frame in a single step
+    alpha = 0.5  # Transparency factor
+    frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
+
+    # Add the top-left text on top of the blue box
+    cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
+                top_left_font, top_left_font_scale, white_color, top_left_font_thickness, cv2.LINE_AA)
+
+    # Add the bottom-right text on top of the blue box
     cv2.putText(frame, bottom_right_text_line1,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + 5),
-                font, font_scale, white_color, thickness, cv2.LINE_AA)
-
-    # Add the second line of text
+                bottom_right_font, bottom_right_font_scale, white_color, bottom_right_font_thickness, cv2.LINE_AA)
     cv2.putText(frame, bottom_right_text_line2,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 10),
-                font, font_scale, white_color, thickness, cv2.LINE_AA)
+                bottom_right_font, bottom_right_font_scale, white_color, bottom_right_font_thickness, cv2.LINE_AA)
 
     return frame
 
