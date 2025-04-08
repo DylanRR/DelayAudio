@@ -165,9 +165,9 @@ class videoController:
     white_color = (255, 255, 255)  # White in BGR
 
     # Define font and scale
-    font = cv2.FONT_HERSHEY_PLAIN
-    font_scale = 1  # Small font scale for bottom-right text
-    thickness = 1  # Slightly increased thickness for better readability
+    font = cv2.FONT_HERSHEY_COMPLEX
+    font_scale = 0.3  # Small font scale for bottom-right text
+    thickness = 1.2  # Slightly increased thickness for better readability
 
     # Add top-left text with blue box
     top_left_text_size = cv2.getTextSize(top_left_text, font, 1, 2)[0]
