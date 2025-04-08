@@ -177,11 +177,14 @@ class videoController:
     cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
                 font, font_scale, white_color, thickness)
 
+    # Define a smaller font scale for the bottom-right text
+    font_scale_small = 0.7  # Reduced font scale for better fit
+
     # Add bottom-right text with blue box
     bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
     bottom_right_text_line2 = "for sound to travel from Earth to the Moon. (1.5 seconds)"
-    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale, thickness)[0]
-    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale, thickness)[0]
+    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale_small, thickness)[0]
+    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale_small, thickness)[0]
     frame_height, frame_width = frame.shape[:2]
 
     # Calculate the box size to fit both lines
@@ -199,12 +202,12 @@ class videoController:
     # Add the first line of text
     cv2.putText(frame, bottom_right_text_line1,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + 5),
-                font, font_scale, white_color, thickness)
+                font, font_scale_small, white_color, thickness)
 
     # Add the second line of text
     cv2.putText(frame, bottom_right_text_line2,
                 (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 10),
-                font, font_scale, white_color, thickness)
+                font, font_scale_small, white_color, thickness)
 
     return frame
 
