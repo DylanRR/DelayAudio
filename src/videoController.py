@@ -187,10 +187,10 @@ class videoController:
     # Calculate the box size to fit both lines
     box_width = max(bottom_right_text_size_line1[0], bottom_right_text_size_line2[0]) + 10
     box_height = bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 15
-    bottom_right_box_coords = (frame_width - box_width - 10,
-                               frame_height - box_height - 10,
-                               frame_width - 10,
-                               frame_height - 10)
+    bottom_right_box_coords = (frame_width - box_width,
+                               frame_height - box_height,
+                               frame_width,
+                               frame_height)
 
     # Draw the blue box
     cv2.rectangle(frame, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
