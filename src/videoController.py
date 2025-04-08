@@ -171,7 +171,7 @@ class videoController:
 
     # Add top-left text with blue box
     top_left_text_size = cv2.getTextSize(top_left_text, font, font_scale, thickness)[0]
-    top_left_box_coords = (10, 10, 10 + top_left_text_size[0] + 10, 10 + top_left_text_size[1] + 10)
+    top_left_box_coords = (0, 0, top_left_text_size[0] + 10, top_left_text_size[1] + 10)  # Adjusted to start at (0, 0)
     cv2.rectangle(frame, (top_left_box_coords[0], top_left_box_coords[1]),
                   (top_left_box_coords[2], top_left_box_coords[3]), blue_color, -1)
     cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
