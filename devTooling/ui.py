@@ -150,14 +150,14 @@ class ConfigUI(tk.Tk):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text='Microphones')
         # Add widgets for microphones configuration
-        ttk.Label(frame, text="Microphone 1 Index:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Microphone 1 Serial Number:").grid(row=0, column=0, padx=10, pady=5)
         self.mic1_entry = ttk.Entry(frame)
         self.mic1_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.mic1_entry.insert(0, self.CL.get_config_value('microphones', ['microphone_1', 'index']))
-        ttk.Label(frame, text="Microphone 2 Index:").grid(row=1, column=0, padx=10, pady=5)
+        self.mic1_entry.insert(0, self.CL.get_config_value('microphones', ['microphone_1', 'serial_number']))
+        ttk.Label(frame, text="Microphone 2 Serial Number:").grid(row=1, column=0, padx=10, pady=5)
         self.mic2_entry = ttk.Entry(frame)
         self.mic2_entry.grid(row=1, column=1, padx=10, pady=5)
-        self.mic2_entry.insert(0, self.CL.get_config_value('microphones', ['microphone_2', 'index']))
+        self.mic2_entry.insert(0, self.CL.get_config_value('microphones', ['microphone_2', 'serial_number']))
 
         # Add buttons below the existing widgets
         list_button = ttk.Button(frame, text="Scan Audio", command=self.scan_audio_devices)
@@ -185,11 +185,11 @@ class ConfigUI(tk.Tk):
             self.audio_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
             
     def save_microphone_config(self):
-        mic_1_index = self.mic1_entry.get()
-        if not self.CL.set_config_value('microphones', ['microphone_1', 'index'], mic_1_index):
-            print("Failed to save Microphone 1 index.")
+        mic_1_serial = self.mic1_entry.get()
+        if not self.CL.set_config_value('microphones', ['microphone_1', 'serial_number'], mic_1_serial):
+            print("Failed to save Microphone 1 serial.")
         else:
-            print("Microphone 1 index saved successfully.")
+            print("Microphone 1 serial saved successfully.")
         
         mic_2_index = self.mic2_entry.get()
         if not self.CL.set_config_value('microphones', ['microphone_2', 'index'], mic_2_index):
@@ -201,17 +201,17 @@ class ConfigUI(tk.Tk):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text='Speakers')
         # Add widgets for speakers configuration
-        ttk.Label(frame, text="Speaker 1 Index:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Speaker 1 Serial  Number:").grid(row=0, column=0, padx=10, pady=5)
         self.speaker1_entry = ttk.Entry(frame)
         self.speaker1_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.speaker1_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_1', 'index']))
+        self.speaker1_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_1', 'serial_number']))
         speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker1_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=0, column=2, padx=10, pady=10, sticky='e')
 
-        ttk.Label(frame, text="Speaker 2 Index:").grid(row=1, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Speaker 2 Serial Number:").grid(row=1, column=0, padx=10, pady=5)
         self.speaker2_entry = ttk.Entry(frame)
         self.speaker2_entry.grid(row=1, column=1, padx=10, pady=5)
-        self.speaker2_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_2', 'index']))
+        self.speaker2_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_2', 'serial_number']))
         speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker2_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=1, column=2, padx=10, pady=10, sticky='e')
 
@@ -242,30 +242,31 @@ class ConfigUI(tk.Tk):
             self.speaker_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
 
     def save_speaker_config(self):
-        spk1_index = self.speaker1_entry.get()
-        if not self.CL.set_config_value('speakers', ['speaker_1', 'index'], spk1_index):
-            print("Failed to save Speaker 1 index.")
+        spk1_serial = self.speaker1_entry.get()
+        if not self.CL.set_config_value('speakers', ['speaker_1', 'serial_number'], spk1_serial):
+            print("Failed to save Speaker 1 serial number.")
         else:
-            print("Speaker 1 index saved successfully.")
+            print("Speaker 1 serial number saved successfully.")
             
-        spk2_index = self.speaker2_entry.get()
-        if not self.CL.set_config_value('speakers', ['speaker_2', 'index'], spk2_index):
+        spk2_serial = self.speaker2_entry.get()
+        if not self.CL.set_config_value('speakers', ['speaker_2', 'serial_number'], spk2_serial):
             print("Failed to save Speaker 2 index.")
         else:
             print("Speaker 2 index saved successfully.")
+
 
     def create_webcams_tab(self, notebook):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text='Webcams')
         # Add widgets for webcams configuration
-        ttk.Label(frame, text="Webcam 1 Index:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Webcam 1 serial number:").grid(row=0, column=0, padx=10, pady=5)
         self.webcam1_entry = ttk.Entry(frame)
         self.webcam1_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.webcam1_entry.insert(0, self.CL.get_config_value('webcams', ['webcam_1', 'index']))
-        ttk.Label(frame, text="Webcam 2 Index:").grid(row=1, column=0, padx=10, pady=5)
+        self.webcam1_entry.insert(0, self.CL.get_config_value('webcams', ['webcam_1', 'serial_number']))
+        ttk.Label(frame, text="Webcam 2 serial number:").grid(row=1, column=0, padx=10, pady=5)
         self.webcam2_entry = ttk.Entry(frame)
         self.webcam2_entry.grid(row=1, column=1, padx=10, pady=5)
-        self.webcam2_entry.insert(0, self.CL.get_config_value('webcams', ['webcam_2', 'index']))
+        self.webcam2_entry.insert(0, self.CL.get_config_value('webcams', ['webcam_2', 'serial_number']))
 
         # Add buttons below the existing widgets
         list_button = ttk.Button(frame, text="Identify Webcam", command=scanWebcams.identify_webcams)
@@ -276,17 +277,17 @@ class ConfigUI(tk.Tk):
         save_btn.grid(row=2, column=1, padx=10, pady=10, sticky='w')
 
     def save_webcam_config(self):
-        web1_index = self.webcam1_entry.get()
-        if not self.CL.set_config_value('webcams', ['webcam_1', 'index'], web1_index):
-            print("Failed to save Webcam 1 index.")
+        web1_serial = self.webcam1_entry.get()
+        if not self.CL.set_config_value('webcams', ['webcam_1', 'serial_number'], web1_serial):
+            print("Failed to save Webcam 1 serial numebr.")
         else:
-            print("Webcam 1 index saved successfully.")
+            print("Webcam 1 serial number saved successfully.")
             
-        web2_index = self.webcam2_entry.get()
-        if not self.CL.set_config_value('webcams', ['webcam_2', 'index'], web2_index):
-            print("Failed to save Webcam 2 index.")
+        web2_serial = self.webcam2_entry.get()
+        if not self.CL.set_config_value('webcams', ['webcam_2', 'serial_number'], web2_serial):
+            print("Failed to save Webcam 2 serial number.")
         else:
-            print("Webcam 2 index saved successfully.")
+            print("Webcam 2 serial number saved successfully.")
 
     def create_monitors_tab(self, notebook):
         frame = ttk.Frame(notebook)
