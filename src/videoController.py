@@ -178,7 +178,7 @@ class videoController:
                 font, font_scale, white_color, thickness)
 
     # Define a smaller font scale for the bottom-right text
-    font_scale_small = 0.7  # Reduced font scale for better fit
+    font_scale_small = 0.3  # Reduced font scale for better fit
 
     # Add bottom-right text with blue box
     bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
