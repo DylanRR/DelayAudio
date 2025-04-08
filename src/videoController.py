@@ -178,15 +178,32 @@ class videoController:
                 font, font_scale, white_color, thickness)
 
     # Add bottom-right text with blue box
-    bottom_right_text = "*A sound delay has been added to represent the time it takes for sound to travel from Earth to the Moon. (1.5 seconds)"
-    bottom_right_text_size = cv2.getTextSize(bottom_right_text, font, font_scale, thickness)[0]
+    bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
+    bottom_right_text_line2 = "for sound to travel from Earth to the Moon. (1.5 seconds)"
+    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, font, font_scale, thickness)[0]
+    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, font, font_scale, thickness)[0]
     frame_height, frame_width = frame.shape[:2]
-    bottom_right_box_coords = (frame_width - bottom_right_text_size[0] - 20,
-                              frame_height - bottom_right_text_size[1] - 20,
-                              frame_width - 10, frame_height - 10)
+
+    # Calculate the box size to fit both lines
+    box_width = max(bottom_right_text_size_line1[0], bottom_right_text_size_line2[0]) + 10
+    box_height = bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 15
+    bottom_right_box_coords = (frame_width - box_width - 10,
+                              frame_height - box_height - 10,
+                              frame_width - 10,
+                              frame_height - 10)
+
+    # Draw the blue box
     cv2.rectangle(frame, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
                   (bottom_right_box_coords[2], bottom_right_box_coords[3]), blue_color, -1)
-    cv2.putText(frame, bottom_right_text, (bottom_right_box_coords[0] + 5, bottom_right_box_coords[3] - 5),
+
+    # Add the first line of text
+    cv2.putText(frame, bottom_right_text_line1,
+                (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + 5),
+                font, font_scale, white_color, thickness)
+
+    # Add the second line of text
+    cv2.putText(frame, bottom_right_text_line2,
+                (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 10),
                 font, font_scale, white_color, thickness)
 
     return frame
