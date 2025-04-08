@@ -201,17 +201,17 @@ class ConfigUI(tk.Tk):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text='Speakers')
         # Add widgets for speakers configuration
-        ttk.Label(frame, text="Speaker 1 Serial  Number:").grid(row=0, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Speaker 1 Device Name:").grid(row=0, column=0, padx=10, pady=5)
         self.speaker1_entry = ttk.Entry(frame)
         self.speaker1_entry.grid(row=0, column=1, padx=10, pady=5)
-        self.speaker1_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_1', 'serial_number']))
+        self.speaker1_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_1', 'device_name']))
         speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker1_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=0, column=2, padx=10, pady=10, sticky='e')
 
-        ttk.Label(frame, text="Speaker 2 Serial Number:").grid(row=1, column=0, padx=10, pady=5)
+        ttk.Label(frame, text="Speaker 2 Device Name:").grid(row=1, column=0, padx=10, pady=5)
         self.speaker2_entry = ttk.Entry(frame)
         self.speaker2_entry.grid(row=1, column=1, padx=10, pady=5)
-        self.speaker2_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_2', 'serial_number']))
+        self.speaker2_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_2', 'device_name']))
         speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker2_entry.get()), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=1, column=2, padx=10, pady=10, sticky='e')
 
