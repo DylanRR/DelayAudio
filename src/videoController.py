@@ -3,6 +3,7 @@ import time
 from screeninfo import get_monitors
 import threading
 from collections import deque
+import os
 
 class webcam:
   def __init__(self, device_index):
@@ -134,7 +135,10 @@ class videoController:
     if self.video_delay > 0:
       self.__process_delayed_frames(frame1, frame2)
     else:
-      self.__process_live_frames(frame1, frame2)
+      overlay_images_frame1 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame2 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
+      self.__display_frame(self.monitor_1, frame1, overlay_images_frame1)
+      self.__display_frame(self.monitor_2, frame2, overlay_images_frame2)
 
   def __process_delayed_frames(self, frame1, frame2):
     self.buffer_1.append(frame1)
@@ -142,80 +146,64 @@ class videoController:
 
     if len(self.buffer_1) == self.buffer_1.maxlen:
       delayed_frame1 = self.buffer_1.popleft()
-      self.__display_frame(self.monitor_1, delayed_frame1, "MISSION CONTROL")
+      overlay_images_frame1 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
+      self.__display_frame(self.monitor_1, delayed_frame1, overlay_images_frame1)
 
     if len(self.buffer_2) == self.buffer_2.maxlen:
       delayed_frame2 = self.buffer_2.popleft()
-      self.__display_frame(self.monitor_2, delayed_frame2, "LUNAR BASE")
+      overlay_images_frame2 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
+      self.__display_frame(self.monitor_2, delayed_frame2, overlay_images_frame2)
 
-  def __process_live_frames(self, frame1, frame2):
-    self.__display_frame(self.monitor_1, frame1, "MISSION CONTROL")
-    self.__display_frame(self.monitor_2, frame2, "LUNAR BASE")
-
-  def __display_frame(self, monitor, frame, overlay_text):
+  def __display_frame(self, monitor, frame, overlay_images):
     if frame is not None:
-      frame = self.__add_overlay(frame, overlay_text)
+      frame = self.__add_image_overlays(frame, overlay_images)
       monitor.show_frame(frame)
     else:
-      print(f"No frame captured for {overlay_text}.")
+      print(f"No frame captured.")
 
-  def __add_overlay(self, frame, top_left_text):
-    # Define colors
-    blue_color = (255, 0, 0)  # Blue in BGR
-    white_color = (255, 255, 255)  # White in BGR
+  def __add_image_overlays(self, frame, overlay_images):
+    for overlay_image_path, position in overlay_images:
+      # Get the absolute path of the PNG file
+      overlay_image_path = os.path.join(os.path.dirname(__file__), overlay_image_path)
 
-    # Define font and scale
-    top_left_font = cv2.FONT_HERSHEY_COMPLEX
-    top_left_font_scale = .8
-    top_left_font_thickness = 2
-    
-    bottom_right_font = cv2.FONT_HERSHEY_COMPLEX_SMALL
-    bottom_right_font_scale = 0.6
-    bottom_right_font_thickness = 1
+      # Load the PNG image
+      overlay_image = cv2.imread(overlay_image_path, cv2.IMREAD_UNCHANGED)
+      if overlay_image is None:
+        print(f"Error: {overlay_image_path} not found.")
+        continue
 
-    # Create a copy of the frame for transparency effect
-    overlay = frame.copy()
+      # Check if the overlay image has an alpha channel
+      has_alpha = overlay_image.shape[2] == 4
 
-    # Add top-left semi-transparent blue box
-    top_left_text_size = cv2.getTextSize(top_left_text, top_left_font, top_left_font_scale, top_left_font_thickness)[0]
-    top_left_box_coords = (0, 0, top_left_text_size[0] + 10, top_left_text_size[1] + 10)
-    cv2.rectangle(overlay, (top_left_box_coords[0], top_left_box_coords[1]),
-                  (top_left_box_coords[2], top_left_box_coords[3]), blue_color, -1)
+      # Resize the overlay image if necessary
+      overlay_height, overlay_width = overlay_image.shape[:2]
+      if overlay_height > frame.shape[0] or overlay_width > frame.shape[1]:
+        scale = min(frame.shape[0] / overlay_height, frame.shape[1] / overlay_width)
+        overlay_image = cv2.resize(overlay_image, (int(overlay_width * scale), int(overlay_height * scale)))
 
-    # Add bottom-right semi-transparent blue box
-    bottom_right_text_line1 = "*A sound delay has been added to represent the time it takes"
-    bottom_right_text_line2 = "for sound to travel from Earth to the Moon. (1.5 seconds)"
-    bottom_right_text_size_line1 = cv2.getTextSize(bottom_right_text_line1, bottom_right_font, bottom_right_font_scale, bottom_right_font_thickness)[0]
-    bottom_right_text_size_line2 = cv2.getTextSize(bottom_right_text_line2, bottom_right_font, bottom_right_font_scale, bottom_right_font_thickness)[0]
-    frame_height, frame_width = frame.shape[:2]
+      # Determine the region of interest (ROI) in the frame
+      if position == "upper_left":
+        roi = frame[0:overlay_image.shape[0], 0:overlay_image.shape[1]]
+      elif position == "lower_right":
+        roi = frame[-overlay_image.shape[0]:, -overlay_image.shape[1]:]
 
-    # Calculate the box size to fit both lines
-    box_width = max(bottom_right_text_size_line1[0], bottom_right_text_size_line2[0]) + 10
-    box_height = bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 15
-    bottom_right_box_coords = (frame_width - box_width,
-                               frame_height - box_height,
-                               frame_width,
-                               frame_height)
+      if has_alpha:
+        # Extract the alpha channel and the color channels
+        alpha_channel = overlay_image[:, :, 3] / 255.0
+        color_channels = overlay_image[:, :, :3]
 
-    # Draw the bottom-right blue box
-    cv2.rectangle(overlay, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
-                  (bottom_right_box_coords[2], bottom_right_box_coords[3]), blue_color, -1)
+        # Blend the overlay image with the ROI using the alpha channel
+        for c in range(3):  # Iterate over the color channels
+          roi[:, :, c] = (1 - alpha_channel) * roi[:, :, c] + alpha_channel * color_channels[:, :, c]
+      else:
+        # If no alpha channel, directly overlay the image
+        roi[:, :, :] = overlay_image[:, :, :3]
 
-    # Blend the overlay with the original frame in a single step
-    alpha = 0.5  # Transparency factor
-    frame = cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0)
-
-    # Add the top-left text on top of the blue box
-    cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
-                top_left_font, top_left_font_scale, white_color, top_left_font_thickness, cv2.LINE_AA)
-
-    # Add the bottom-right text on top of the blue box
-    cv2.putText(frame, bottom_right_text_line1,
-                (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + 5),
-                bottom_right_font, bottom_right_font_scale, white_color, bottom_right_font_thickness, cv2.LINE_AA)
-    cv2.putText(frame, bottom_right_text_line2,
-                (bottom_right_box_coords[0] + 5, bottom_right_box_coords[1] + bottom_right_text_size_line1[1] + bottom_right_text_size_line2[1] + 10),
-                bottom_right_font, bottom_right_font_scale, white_color, bottom_right_font_thickness, cv2.LINE_AA)
+      # Replace the ROI in the frame with the blended or overlaid result
+      if position == "upper_left":
+        frame[0:overlay_image.shape[0], 0:overlay_image.shape[1]] = roi
+      elif position == "lower_right":
+        frame[-overlay_image.shape[0]:, -overlay_image.shape[1]:] = roi
 
     return frame
 
