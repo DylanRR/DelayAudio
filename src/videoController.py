@@ -132,33 +132,64 @@ class videoController:
     frame2 = self.webcam_1.get_frame()
 
     if self.video_delay > 0:
-      self.buffer_1.append(frame1)
-      self.buffer_2.append(frame2)
-
-      if len(self.buffer_1) == self.buffer_1.maxlen:
-        delayed_frame1 = self.buffer_1.popleft()
-        if delayed_frame1 is not None:
-          self.monitor_1.show_frame(delayed_frame1)
-        else:
-          print("No frame captured from webcam 1.")
-
-      if len(self.buffer_2) == self.buffer_2.maxlen:
-        delayed_frame2 = self.buffer_2.popleft()
-        if delayed_frame2 is not None:
-          self.monitor_2.show_frame(delayed_frame2)
-        else:
-          print("No frame captured from webcam 2.")
+      self.__process_delayed_frames(frame1, frame2)
     else:
-      if frame1 is not None:
-        self.monitor_1.show_frame(frame1)
-      else:
-        print("No frame captured from webcam 1.")
+      self.__process_live_frames(frame1, frame2)
 
-      if frame2 is not None:
-        self.monitor_2.show_frame(frame2)
-      else:
-        print("No frame captured from webcam 2.")
+  def __process_delayed_frames(self, frame1, frame2):
+    self.buffer_1.append(frame1)
+    self.buffer_2.append(frame2)
 
+    if len(self.buffer_1) == self.buffer_1.maxlen:
+      delayed_frame1 = self.buffer_1.popleft()
+      self.__display_frame(self.monitor_1, delayed_frame1, "LUNAR BASE")
+
+    if len(self.buffer_2) == self.buffer_2.maxlen:
+      delayed_frame2 = self.buffer_2.popleft()
+      self.__display_frame(self.monitor_2, delayed_frame2, "MISSION CONTROL")
+
+  def __process_live_frames(self, frame1, frame2):
+    self.__display_frame(self.monitor_1, frame1, "LUNAR BASE")
+    self.__display_frame(self.monitor_2, frame2, "MISSION CONTROL")
+
+  def __display_frame(self, monitor, frame, overlay_text):
+    if frame is not None:
+      frame = self.__add_overlay(frame, overlay_text)
+      monitor.show_frame(frame)
+    else:
+      print(f"No frame captured for {overlay_text}.")
+
+  def __add_overlay(self, frame, top_left_text):
+    # Define colors
+    blue_color = (255, 0, 0)  # Blue in BGR
+    white_color = (255, 255, 255)  # White in BGR
+
+    # Define font and scale
+    font = cv2.FONT_HERSHEY_DUPLEX
+    font_scale = 1
+    thickness = 2
+
+    # Add top-left text with blue box
+    top_left_text_size = cv2.getTextSize(top_left_text, font, font_scale, thickness)[0]
+    top_left_box_coords = (10, 10, 10 + top_left_text_size[0] + 10, 10 + top_left_text_size[1] + 10)
+    cv2.rectangle(frame, (top_left_box_coords[0], top_left_box_coords[1]),
+                  (top_left_box_coords[2], top_left_box_coords[3]), blue_color, -1)
+    cv2.putText(frame, top_left_text, (top_left_box_coords[0] + 5, top_left_box_coords[3] - 5),
+                font, font_scale, white_color, thickness)
+
+    # Add bottom-right text with blue box
+    bottom_right_text = "*A sound delay has been added to represent the time it takes for sound to travel from Earth to the Moon. (1.5 seconds)"
+    bottom_right_text_size = cv2.getTextSize(bottom_right_text, font, font_scale, thickness)[0]
+    frame_height, frame_width = frame.shape[:2]
+    bottom_right_box_coords = (frame_width - bottom_right_text_size[0] - 20,
+                              frame_height - bottom_right_text_size[1] - 20,
+                              frame_width - 10, frame_height - 10)
+    cv2.rectangle(frame, (bottom_right_box_coords[0], bottom_right_box_coords[1]),
+                  (bottom_right_box_coords[2], bottom_right_box_coords[3]), blue_color, -1)
+    cv2.putText(frame, bottom_right_text, (bottom_right_box_coords[0] + 5, bottom_right_box_coords[3] - 5),
+                font, font_scale, white_color, thickness)
+
+    return frame
 
   def run(self):
     try:
