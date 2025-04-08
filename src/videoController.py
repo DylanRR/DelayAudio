@@ -165,7 +165,7 @@ class videoController:
     white_color = (255, 255, 255)  # White in BGR
 
     # Define font and scale
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    font = cv2.FONT_HERSHEY_COMPLEX
     font_scale = 0.3  # Small font scale for bottom-right text
     thickness = 1  # Slightly increased thickness for better readability
 
