@@ -167,7 +167,7 @@ class videoController:
     # Define font and scale
     font = cv2.FONT_HERSHEY_COMPLEX
     font_scale = 0.3  # Small font scale for bottom-right text
-    thickness = 2  # Slightly increased thickness for better readability
+    thickness = 1  # Slightly increased thickness for better readability
 
     # Add top-left text with blue box
     top_left_text_size = cv2.getTextSize(top_left_text, font, 1, 2)[0]
