@@ -145,8 +145,8 @@ if __name__ == "__main__":
     serial_number1 = 'MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6'
     serial_number2 = 'MVX2U#2-b024f7fd59cb675ab7b3afcfe2015bed'
     
-    name1 = 'KT USB Audio: - (hw:1,0)' #This is just for testing we would not want to include the HW number in the name as it could change
-    name2 = 'KT USB Audio: - (hw:3,0)'
+    name1 = 'KT USB Audio' #This is just for testing we would not want to include the HW number in the name as it could change
+    name2 = 'AB13X USB Audio'
 
     print(f"Microphone 1 Serial: {serial_number1} PyAudio Index: {get_pyaudio_index_from_serial(serial_number1)}")
     print(f"Microphone 2 Serial: {serial_number2} PyAudio Index: {get_pyaudio_index_from_serial(serial_number2)}")

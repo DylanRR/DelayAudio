@@ -17,29 +17,27 @@ config_path = configuration_loader.get_config_path()
 CL = configuration_loader.ConfigurationLoader(config_path)
 
 # Configurable Variables
+mic1_serial = CL.get_config_value('microphones', ['microphone_1', 'serial_number'])
+MIC_INDEX_1 = AAS.get_pyaudio_index_from_serial(mic1_serial)
+mic2_serial = CL.get_config_value('microphones', ['microphone_2', 'serial_number'])
+MIC_INDEX_2 = AAS.get_pyaudio_index_from_serial(mic2_serial)
 
-MIC_INDEX_1 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b024f7fd59cb675ab7b3afcfe2015bed')
-print(f"Mic 1 Index: {MIC_INDEX_1}")
-MIC_INDEX_2 = AAS.get_pyaudio_index_from_serial('MVX2U#2-b71cdcfb0cbedc549200ce724ab01ba6')
-print(f"Mic 2 Index: {MIC_INDEX_2}")
-
-SPEAKER1_INDEX = AAS.get_device_index_from_name('KT USB Audio')
-print(f"Speaker 1 Index: {SPEAKER1_INDEX}")
-SPEAKER2_INDEX = AAS.get_device_index_from_name('AB13X USB Audio')
-print(f"Speaker 2 Index: {SPEAKER2_INDEX}")
+speaker1_name = CL.get_config_value('speakers', ['speaker_1', 'device_name'])
+SPEAKER1_INDEX = AAS.get_device_index_from_name(speaker1_name)
+speaker2_name = CL.get_config_value('speakers', ['speaker_2', 'device_name'])
+SPEAKER2_INDEX = AAS.get_device_index_from_name(speaker2_name)
 
 AUDIO_DELAY = CL.get_config_value('advanced_audio_properties', ['audio_delay']) / 1000 # Convert milliseconds to seconds
 SAMPLE_RATE = CL.get_config_value('advanced_audio_properties', ['sample_rate'])
 BUFFER_SIZE = CL.get_config_value('advanced_audio_properties', ['chunk_size'])
 
-WEBCAM_INDEX_1 = CL.get_config_value('webcams', ['webcam_1', 'index'])
-WEBCAM_INDEX_2 = CL.get_config_value('webcams', ['webcam_2', 'index'])
+webcam1_serial = CL.get_config_value('webcams', ['webcam_1', 'serial_number'])
+WEBCAM_INDEX_1 = AWS.get_cv2_index_from_serial(webcam1_serial)
+webcam2_serial = CL.get_config_value('webcams', ['webcam_2', 'serial_number'])
+WEBCAM_INDEX_2 = AWS.get_cv2_index_from_serial(webcam2_serial)
 
-#KT USB Audio
-#AB13X USB Audio
-
-MONITOR_INDEX_1 = 0
-MONITOR_INDEX_2 = 1
+MONITOR_INDEX_1 = CL.get_config_value('monitors', ['monitor_1', 'index'])
+MONITOR_INDEX_2 = CL.get_config_value('monitors', ['monitor_2', 'index'])
 
 VIDEO_DELAY = CL.get_config_value('advanced_video_properties', ['video_delay']) / 1000 # Convert milliseconds to seconds
 

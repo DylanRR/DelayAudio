@@ -5,12 +5,15 @@ import scanAudio
 import scanWebcams
 import scanMonitors
 import scanSampleRates
+import scanSerialNumbers
 import sys
 import os
+
 
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import configuration_loader_v2 as configuration_loader
+from config import advancedAudioScan as AAS
 
 class ConfigUI(tk.Tk):
     def __init__(self):
@@ -160,7 +163,7 @@ class ConfigUI(tk.Tk):
         self.mic2_entry.insert(0, self.CL.get_config_value('microphones', ['microphone_2', 'serial_number']))
 
         # Add buttons below the existing widgets
-        list_button = ttk.Button(frame, text="Scan Audio", command=self.scan_audio_devices)
+        list_button = ttk.Button(frame, text="Scan Devices", command=self.scan_audio_devices)
         list_button.grid(row=2, column=0, padx=10, pady=10, sticky='w')
         
         # Save Button
@@ -168,7 +171,7 @@ class ConfigUI(tk.Tk):
         save_btn.grid(row=2, column=1, padx=10, pady=10, sticky='w')
 
       # Add a scrollable listbox to display the audio devices
-        self.audio_devices_listbox = tk.Listbox(frame, height=10, width=50)
+        self.audio_devices_listbox = tk.Listbox(frame, height=10, width=70)
         self.audio_devices_listbox.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky='w')
 
         scrollbar = ttk.Scrollbar(frame, orient="vertical", command=self.audio_devices_listbox.yview)
@@ -180,9 +183,9 @@ class ConfigUI(tk.Tk):
         self.audio_devices_listbox.delete(0, tk.END)
 
         # Fetch and display the list of audio devices
-        devices = scanAudio.list_audio_devices()
-        for idx, device in enumerate(devices):
-            self.audio_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
+        devices = scanSerialNumbers.get_usb_devices()
+        for device_name, serial_number in devices:
+            self.audio_devices_listbox.insert(tk.END, f"Device: {device_name}, Serial Number: {serial_number}")
             
     def save_microphone_config(self):
         mic_1_serial = self.mic1_entry.get()
@@ -192,10 +195,10 @@ class ConfigUI(tk.Tk):
             print("Microphone 1 serial saved successfully.")
         
         mic_2_index = self.mic2_entry.get()
-        if not self.CL.set_config_value('microphones', ['microphone_2', 'index'], mic_2_index):
-            print("Failed to save Microphone 2 index.")
+        if not self.CL.set_config_value('microphones', ['microphone_2', 'serial_number'], mic_2_index):
+            print("Failed to save Microphone 2 serial.")
         else:
-            print("Microphone 2 index saved successfully.")
+            print("Microphone 2 serial saved successfully.")
 
     def create_speakers_tab(self, notebook):
         frame = ttk.Frame(notebook)
@@ -205,14 +208,18 @@ class ConfigUI(tk.Tk):
         self.speaker1_entry = ttk.Entry(frame)
         self.speaker1_entry.grid(row=0, column=1, padx=10, pady=5)
         self.speaker1_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_1', 'device_name']))
-        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker1_entry.get()), int(self.sample_rate_entry.get())))
+        print (self.speaker1_entry.get())
+        speaker1_index = AAS.get_device_index_from_name(self.speaker1_entry.get())
+        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(speaker1_index), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=0, column=2, padx=10, pady=10, sticky='e')
 
         ttk.Label(frame, text="Speaker 2 Device Name:").grid(row=1, column=0, padx=10, pady=5)
         self.speaker2_entry = ttk.Entry(frame)
         self.speaker2_entry.grid(row=1, column=1, padx=10, pady=5)
         self.speaker2_entry.insert(0, self.CL.get_config_value('speakers', ['speaker_2', 'device_name']))
-        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(self.speaker2_entry.get()), int(self.sample_rate_entry.get())))
+        print (self.speaker2_entry.get())
+        speaker2_index = AAS.get_device_index_from_name(self.speaker2_entry.get())
+        speaker1_play_button = ttk.Button(frame, text="Play Sound", command=lambda: scanAudio.play_test_tone(int(speaker2_index), int(self.sample_rate_entry.get())))
         speaker1_play_button.grid(row=1, column=2, padx=10, pady=10, sticky='e')
 
         # Add buttons below the existing widgets
@@ -237,19 +244,19 @@ class ConfigUI(tk.Tk):
         self.speaker_devices_listbox.delete(0, tk.END)
 
         # Fetch and display the list of audio devices
-        devices = scanAudio.list_audio_devices()
-        for idx, device in enumerate(devices):
-            self.speaker_devices_listbox.insert(tk.END, f"Device {idx} - {device}")
+        devices = scanSerialNumbers.get_usb_devices()
+        for device_name, serial_number in devices:
+            self.speaker_devices_listbox.insert(tk.END, f"Device: {device_name}")
 
     def save_speaker_config(self):
         spk1_serial = self.speaker1_entry.get()
-        if not self.CL.set_config_value('speakers', ['speaker_1', 'serial_number'], spk1_serial):
+        if not self.CL.set_config_value('speakers', ['speaker_1', 'device_name'], spk1_serial):
             print("Failed to save Speaker 1 serial number.")
         else:
             print("Speaker 1 serial number saved successfully.")
             
         spk2_serial = self.speaker2_entry.get()
-        if not self.CL.set_config_value('speakers', ['speaker_2', 'serial_number'], spk2_serial):
+        if not self.CL.set_config_value('speakers', ['speaker_2', 'device_name'], spk2_serial):
             print("Failed to save Speaker 2 index.")
         else:
             print("Speaker 2 index saved successfully.")
@@ -269,12 +276,29 @@ class ConfigUI(tk.Tk):
         self.webcam2_entry.insert(0, self.CL.get_config_value('webcams', ['webcam_2', 'serial_number']))
 
         # Add buttons below the existing widgets
-        list_button = ttk.Button(frame, text="Identify Webcam", command=scanWebcams.identify_webcams)
+        list_button = ttk.Button(frame, text="Identify Webcam", command=self.scan_list_webcams)
         list_button.grid(row=2, column=0, padx=10, pady=10, sticky='w')
+        
+        # Add a scrollable listbox to display the audio devices
+        self.webcam_devices_listbox = tk.Listbox(frame, height=10, width=50)
+        self.webcam_devices_listbox.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky='w')
+
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=self.webcam_devices_listbox.yview)
+        scrollbar.grid(row=3, column=2, sticky='ns')
+        self.webcam_devices_listbox.config(yscrollcommand=scrollbar.set)
         
         # Save Button
         save_btn = ttk.Button(frame, text="Save", command=self.save_webcam_config)
         save_btn.grid(row=2, column=1, padx=10, pady=10, sticky='w')
+        
+    def scan_list_webcams(self):
+        # Clear previous output
+      self.webcam_devices_listbox.delete(0, tk.END)
+
+      # Fetch and display the list of audio devices
+      devices = scanSerialNumbers.get_webcam_devices()
+      for device_name, serial_number in devices:
+          self.webcam_devices_listbox.insert(tk.END, f"Device: {device_name} Serial Number: {serial_number}")
 
     def save_webcam_config(self):
         web1_serial = self.webcam1_entry.get()
