@@ -135,8 +135,8 @@ class videoController:
     if self.video_delay > 0:
       self.__process_delayed_frames(frame1, frame2)
     else:
-      overlay_images_frame1 = [("mission_control.png", "upper_left"), ("desc.png", "lower_right")]
-      overlay_images_frame2 = [("lunar_base.png", "upper_left"), ("desc.png", "lower_right")]
+      overlay_images_frame1 = [("mission_control.png", "upper_left"), ("desc_mc.png", "lower_right")]
+      overlay_images_frame2 = [("lunar_base.png", "upper_left"), ("desc_lb.png", "lower_right")]
       self.__display_frame(self.monitor_1, frame1, overlay_images_frame1)
       self.__display_frame(self.monitor_2, frame2, overlay_images_frame2)
 
